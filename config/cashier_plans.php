@@ -39,7 +39,7 @@ return [
         /**
          * The plan reference.
          */
-        'example-1' => [
+        'essential-monthly' => [
 
             /**
              * The amount to be billed each billing cycle.
@@ -50,7 +50,7 @@ return [
                  * A string containing the exact amount you want to charge each billing cycle, in the given currency.
                  * Make sure to set the right amount of decimals. Non-string values are not accepted by Mollie.
                  */
-                'value' => '10.00',
+                'value' => '19.00',
 
                 /**
                  * An ISO 4217 currency code. The currencies supported depend on the payment methods that are enabled on
@@ -73,9 +73,78 @@ return [
             /**
              * The text to appear on the invoice.
              */
-            'description' => 'Monthly payment',
+            'description' => 'Essential - Monthly',
 
-        /**
+            'marketing' => [
+                'name' => 'Essential',
+                'description' => 'The perfect plan to get you started with HubFlow apps, boosting your productivity and efficiency from day one.',
+                'features' => [
+                    '1 connected HubSpot Account',
+                    '3 Apps',
+                    'Up to 1,000 companies',
+                ],
+            ],
+
+            /**
+         * The chain of subscription OrderItem preprocessors. These are called right before the Subscription's
+         * OrderItem is processed into an OrderItem. You can use this for calculating variable costs a.k.a. metered
+         * billing. Make sure the preprocessors extend the BaseOrderItemProcessor.
+         */
+            //'order_item_preprocessors' => [
+            //    ProcessCoupons::class,
+            //    PersistOrderItems::class,
+            //],
+        ],
+
+        'enterprise-monthly' => [
+
+            /**
+             * The amount to be billed each billing cycle.
+             */
+            'amount' => [
+
+                /**
+                 * A string containing the exact amount you want to charge each billing cycle, in the given currency.
+                 * Make sure to set the right amount of decimals. Non-string values are not accepted by Mollie.
+                 */
+                'value' => '39.00',
+
+                /**
+                 * An ISO 4217 currency code. The currencies supported depend on the payment methods that are enabled on
+                 * your Mollie account.
+                 */
+                'currency' => 'EUR',
+            ],
+
+            /**
+             * The length of the billing cycle.
+             */
+            // 'interval' => '1 month' or
+            'interval' => [
+                'generator' => AdvancedIntervalGenerator::class,
+                'value' => 1,
+                'period' => 'month', /* day, month or year*/
+                'monthOverflow' => true,
+            ],
+
+            /**
+             * The text to appear on the invoice.
+             */
+            'description' => 'Enterprise - Monthly',
+
+            'marketing' => [
+                'name' => 'Enterprise',
+                'description' => 'The ideal plan for enterprises seeking advanced HubSpot apps to maximize productivity, streamline operations, and strengthen client relationships at scale.',
+                'features' => [
+                    'Unlimited connected HubSpot Accounts',
+                    'Unlimited Apps',
+                    'Unlimited Companies',
+                    'All App Settings',
+                    'Dedicated support representative',
+                ],
+            ],
+
+            /**
          * The chain of subscription OrderItem preprocessors. These are called right before the Subscription's
          * OrderItem is processed into an OrderItem. You can use this for calculating variable costs a.k.a. metered
          * billing. Make sure the preprocessors extend the BaseOrderItemProcessor.

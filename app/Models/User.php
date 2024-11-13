@@ -8,11 +8,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Cashier\Billable;
+use Laravel\Cashier\Order\Contracts\ProvidesInvoiceInformation;
 
-class User extends Authenticatable
+class User extends Authenticatable implements ProvidesInvoiceInformation
 {
+    use Billable;
+
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory;
+
+    use Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -23,6 +29,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+
+        'tax_percentage',
+        'trial_ends_at',
+        'extra_billing_information',
     ];
 
     /**
@@ -66,5 +76,26 @@ class User extends Authenticatable
         return $this->hasMany(
             related: App::class,
         );
+    }
+
+    /**
+     * Get the receiver information for the invoice.
+     * Typically includes the name and some sort of (E-mail/physical) address.
+     *
+     * @return array An array of strings
+     */
+    public function getInvoiceInformation()
+    {
+        return [$this->name, $this->email];
+    }
+
+    /**
+     * Get additional information to be displayed on the invoice. Typically a note provided by the customer.
+     *
+     * @return string|null
+     */
+    public function getExtraBillingInformation()
+    {
+        return $this->extra_billing_information;
     }
 }

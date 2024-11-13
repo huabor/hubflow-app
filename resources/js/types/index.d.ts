@@ -3,6 +3,20 @@ export interface User {
     name: string;
     email: string;
     email_verified_at?: string;
+
+    tax_percentage: number;
+    trial_ends_at: string;
+    extra_billing_information: string;
+}
+
+export interface Subscription {
+    id: number;
+    name: string;
+    plan: string;
+
+    cycle_started_at: string;
+    cycle_ends_at: string;
+    ends_at: string | null;
 }
 
 export type PageProps<
@@ -10,6 +24,21 @@ export type PageProps<
 > = T & {
     auth: {
         user: User;
+        subscription: Subscription | null;
+        on_grace_period: boolean | null;
+    };
+
+    system: {
+        plans: {
+            [k: string]: {
+                key: string;
+                amount: number;
+                currency: string;
+                name: string;
+                description: string;
+                features: string[];
+            };
+        };
     };
 
     flash?: {
@@ -42,4 +71,19 @@ export interface App {
 
     type: string;
     configuration: object;
+}
+
+export interface Order {
+    id: number;
+    number: string;
+    currency: string;
+    total: number;
+    mollie_payment_status: string;
+    processed_at: string;
+}
+
+export interface Credit {
+    id: number;
+    currency: string;
+    value: number;
 }

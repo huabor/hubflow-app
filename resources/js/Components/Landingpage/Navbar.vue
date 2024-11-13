@@ -31,7 +31,7 @@ const isTop = computed(() => y.value === 0);
                 <div class="flex items-center justify-end pr-12 lg:pr-0">
                     <Link
                         v-if="$page.props.auth.user"
-                        :href="route('dashboard')"
+                        :href="route('app.index')"
                         class="flex items-center space-x-2 py-2 text-base font-medium duration-300 ease-in-out"
                         :class="{
                             'text-white hover:opacity-70': isTop,

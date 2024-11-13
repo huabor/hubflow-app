@@ -29,10 +29,29 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $plans = [];
+        foreach (config('cashier_plans.plans') as $key => $plan) {
+            $plans[$key] = [
+                'key' => $key,
+                'amount' => (int) $plan['amount']['value'],
+                'currency' => $plan['amount']['currency'],
+                ...$plan['marketing'],
+            ];
+        }
+
+        $subscription = $request->user()?->subscription('default');
+
         return [
             ...parent::share($request),
+
+            'system' => [
+                'plans' => $plans,
+            ],
+
             'auth' => [
                 'user' => $request->user(),
+                'subscription' => $subscription,
+                'on_grace_period' => $subscription?->onGracePeriod(),
             ],
 
             'flash' => [

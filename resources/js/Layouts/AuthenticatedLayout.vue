@@ -3,6 +3,7 @@ import { Link, usePage } from '@inertiajs/vue3';
 
 import {
     ArrowLeftStartOnRectangleIcon,
+    BanknotesIcon,
     CheckIcon,
     ChevronDownIcon,
     ExclamationTriangleIcon,
@@ -18,6 +19,7 @@ import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import HubflowAppsLogo from '@/Components/HubflowAppsLogo.vue';
 import { useDark, useToggle } from '@vueuse/core';
+import dayjs from 'dayjs';
 
 const resetNotification = () => {
     const pageProps = usePage().props;
@@ -51,6 +53,44 @@ const toggleDark = useToggle(isDark);
                         </div>
 
                         <div class="ms-6 flex items-center">
+                            <div
+                                class="relative ms-3"
+                                v-if="$page.props.auth.subscription"
+                            >
+                                <div
+                                    class="inline-flex items-center px-3 py-2 text-sm text-gray-500 dark:text-gray-400"
+                                >
+                                    <span
+                                        v-if="$page.props.auth.on_grace_period"
+                                        class="ml-2 flex items-center gap-1 text-base font-medium leading-4 text-red-600"
+                                    >
+                                        <ExclamationTriangleIcon
+                                            class="size-6"
+                                        />
+                                        Plan ends on
+                                        {{
+                                            dayjs(
+                                                $page.props.auth.subscription
+                                                    .ends_at,
+                                            ).format('YYYY-MM-DD HH:mm')
+                                        }}</span
+                                    >
+
+                                    <span v-else>
+                                        Your Plan:
+                                        <span
+                                            class="ml-1 font-medium leading-4 text-primary-400"
+                                        >
+                                            {{
+                                                $page.props.system.plans[
+                                                    $page.props.auth
+                                                        .subscription.plan
+                                                ].name
+                                            }}
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
                             <div class="relative ms-3">
                                 <Dropdown align="right" width="48">
                                     <template #trigger>
@@ -59,7 +99,9 @@ const toggleDark = useToggle(isDark);
                                                 type="button"
                                                 class="inline-flex items-center rounded-md border border-transparent px-3 py-2 text-sm font-medium leading-4 text-slate-500 transition duration-150 ease-in-out hover:text-primary-400 focus:outline-none dark:text-slate-400"
                                             >
-                                                {{ $page.props.auth.user.name }}
+                                                {{
+                                                    $page.props.auth.user?.name
+                                                }}
 
                                                 <ChevronDownIcon
                                                     class="-me-0.5 ms-2 h-4 w-4"
@@ -96,6 +138,13 @@ const toggleDark = useToggle(isDark);
                                         >
                                             <UserIcon class="size-5" />
                                             <span>Profile</span>
+                                        </DropdownLink>
+
+                                        <DropdownLink
+                                            :href="route('billing.index')"
+                                        >
+                                            <BanknotesIcon class="size-5" />
+                                            <span>Billing</span>
                                         </DropdownLink>
 
                                         <DropdownLink
