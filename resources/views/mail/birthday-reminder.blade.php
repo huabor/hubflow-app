@@ -14,5 +14,5 @@ diese Hubspot Kontakte haben heute Geburtstag:
 
 Danke!
 
-Team Hubspot Apps
+Team HubFlow Apps
 </x-mail::message>

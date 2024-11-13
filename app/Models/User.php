@@ -3,7 +3,9 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -44,5 +46,25 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get all of the hubspotTokens for the User
+     */
+    public function hubspotTokens(): HasMany
+    {
+        return $this->hasMany(
+            related: HubspotToken::class,
+        );
+    }
+
+    /**
+     * Get all of the apps for the User
+     */
+    public function apps(): HasMany
+    {
+        return $this->hasMany(
+            related: App::class,
+        );
     }
 }

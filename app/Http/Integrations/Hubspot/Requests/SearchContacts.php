@@ -17,8 +17,9 @@ class SearchContacts extends Request implements HasBody
     protected Method $method = Method::POST;
 
     public function __construct(
-        protected array $days,
-        protected array $months,
+        protected string $field,
+        protected string $operator,
+        protected mixed $filterValue,
     ) {}
 
     /**
@@ -31,15 +32,20 @@ class SearchContacts extends Request implements HasBody
 
     protected function defaultBody(): array
     {
-        return [
+        $valueKey = 'value';
+        if (in_array($this->operator, ['IN'])) {
+            $valueKey = 'values';
+        }
+
+        $body = [
             'limit' => 200,
             'properties' => [
                 'lastname',
                 'firstname',
+                'star_sign',
                 'date_of_birth',
-                'birthday__day',
-                'birthday__month',
                 'birthdaytext',
+
                 'hubspot_owner_id',
                 'associatedcompanyid',
             ],
@@ -47,18 +53,15 @@ class SearchContacts extends Request implements HasBody
                 [
                     'filters' => [
                         [
-                            'operator' => 'IN',
-                            'propertyName' => 'birthday__day',
-                            'values' => $this->days,
-                        ],
-                        [
-                            'operator' => 'IN',
-                            'propertyName' => 'birthday__month',
-                            'values' => $this->months,
+                            'operator' => $this->operator,
+                            'propertyName' => $this->field,
+                            $valueKey => $this->filterValue,
                         ],
                     ],
                 ],
             ],
         ];
+
+        return $body;
     }
 }
