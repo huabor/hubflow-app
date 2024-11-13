@@ -29,14 +29,14 @@ const deleteToken = (token: HubspotToken) => {
         <div class="py-12">
             <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
                 <div
-                    class="bg-white p-4 shadow sm:rounded-lg sm:p-8 dark:bg-slate-800"
+                    class="bg-white p-4 shadow sm:rounded-lg sm:p-8 dark:bg-gray-800"
                 >
                     <div class="overflow-x-auto">
                         <table
-                            class="w-full text-left text-sm text-slate-500 dark:text-slate-400"
+                            class="w-full text-left text-sm text-gray-500 dark:text-gray-400"
                         >
                             <thead
-                                class="bg-slate-50 text-xs uppercase text-slate-900 dark:bg-slate-700 dark:text-slate-400"
+                                class="bg-gray-50 text-xs uppercase text-gray-900 dark:bg-gray-700 dark:text-gray-400"
                             >
                                 <tr>
                                     <th scope="col" class="px-4 py-3">#</th>
@@ -53,7 +53,7 @@ const deleteToken = (token: HubspotToken) => {
                                 <tr
                                     v-for="token in tokens"
                                     v-bind:key="token.id"
-                                    class="border-b dark:border-slate-700"
+                                    class="border-b dark:border-gray-700"
                                 >
                                     <td class="px-4 py-3">
                                         {{ token.id }}
@@ -62,7 +62,7 @@ const deleteToken = (token: HubspotToken) => {
                                         <div class="text-base">
                                             {{ token.email }}
                                         </div>
-                                        <div class="font-normal text-slate-500">
+                                        <div class="font-normal text-gray-500">
                                             {{ token.hubspot_user_id }}
                                         </div>
                                     </td>
@@ -70,14 +70,14 @@ const deleteToken = (token: HubspotToken) => {
                                         <div class="text-base">
                                             {{ token.hub_domain }}
                                         </div>
-                                        <div class="font-normal text-slate-500">
+                                        <div class="font-normal text-gray-500">
                                             {{ token.hub_id }}
                                         </div>
                                     </td>
                                     <td class="px-4 py-3">
                                         <button
                                             @click="() => deleteToken(token)"
-                                            class="inline-flex items-center rounded-lg p-0.5 text-center text-sm font-medium text-slate-500 hover:text-slate-800 focus:outline-none dark:text-slate-400 dark:hover:text-slate-100"
+                                            class="inline-flex items-center rounded-lg p-0.5 text-center text-sm font-medium text-gray-500 hover:text-gray-800 focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
                                             type="button"
                                         >
                                             <TrashIcon class="size-5" />

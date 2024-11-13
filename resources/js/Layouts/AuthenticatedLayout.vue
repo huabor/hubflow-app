@@ -34,9 +34,9 @@ const toggleDark = useToggle(isDark);
 
 <template>
     <div>
-        <div class="min-h-screen bg-slate-100 dark:bg-slate-950">
+        <div class="min-h-screen bg-gray-100 dark:bg-gray-950">
             <nav
-                class="border-b border-slate-100 bg-white dark:border-slate-700 dark:bg-slate-800"
+                class="border-b border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800"
             >
                 <!-- Primary Navigation Menu -->
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -46,7 +46,7 @@ const toggleDark = useToggle(isDark);
                             <div class="flex shrink-0 items-center">
                                 <Link :href="route('app.index')">
                                     <HubflowAppsLogo
-                                        class="block h-9 w-auto fill-current text-slate-800 dark:text-slate-200"
+                                        class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200"
                                     />
                                 </Link>
                             </div>
@@ -97,7 +97,7 @@ const toggleDark = useToggle(isDark);
                                         <span class="inline-flex rounded-md">
                                             <button
                                                 type="button"
-                                                class="inline-flex items-center rounded-md border border-transparent px-3 py-2 text-sm font-medium leading-4 text-slate-500 transition duration-150 ease-in-out hover:text-primary-400 focus:outline-none dark:text-slate-400"
+                                                class="inline-flex items-center rounded-md border border-transparent px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-primary-400 focus:outline-none dark:text-gray-400"
                                             >
                                                 {{
                                                     $page.props.auth.user?.name
@@ -113,7 +113,7 @@ const toggleDark = useToggle(isDark);
                                     <template #content>
                                         <button
                                             type="button"
-                                            class="flex w-full items-center space-x-2 px-4 py-2 text-start text-sm leading-5 text-slate-700 transition duration-150 ease-in-out hover:text-primary-400 focus:text-primary-400 focus:outline-none dark:text-slate-300"
+                                            class="flex w-full items-center space-x-2 px-4 py-2 text-start text-sm leading-5 text-gray-700 transition duration-150 ease-in-out hover:text-primary-400 focus:text-primary-400 focus:outline-none dark:text-gray-300"
                                             @click="toggleDark()"
                                         >
                                             <template v-if="isDark">
@@ -167,21 +167,21 @@ const toggleDark = useToggle(isDark);
 
             <!-- Page Heading -->
             <header
-                class="bg-white shadow dark:bg-slate-800"
+                class="bg-white shadow dark:bg-gray-800"
                 v-if="$slots.header"
             >
                 <div
                     class="mx-auto flex max-w-7xl items-center justify-between px-4 py-6 sm:px-6 lg:px-8"
                 >
                     <h2
-                        class="text-xl font-semibold leading-tight text-slate-800 dark:text-slate-200"
+                        class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200"
                     >
                         <slot name="header" />
                     </h2>
 
                     <Link
                         :href="route('app.index')"
-                        class="flex items-center space-x-2 text-lg text-slate-800 hover:text-primary-400 dark:text-slate-200"
+                        class="flex items-center space-x-2 text-lg text-gray-800 hover:text-primary-400 dark:text-gray-200"
                     >
                         <span>All Apps</span>
                         <Squares2X2Icon class="size-6" />
@@ -200,7 +200,7 @@ const toggleDark = useToggle(isDark);
         <div
             v-if="$page?.props?.flash?.notification"
             id="toast"
-            class="mb-4 flex w-full max-w-xs items-center rounded-lg bg-white p-4 text-slate-500 shadow dark:bg-slate-800 dark:text-slate-400"
+            class="mb-4 flex w-full max-w-xs items-center rounded-lg bg-white p-4 text-gray-500 shadow dark:bg-gray-800 dark:text-gray-400"
         >
             <div
                 v-if="$page?.props?.flash?.notification?.type === 'success'"
@@ -225,7 +225,7 @@ const toggleDark = useToggle(isDark);
             </div>
             <button
                 type="button"
-                class="-mx-1.5 -my-1.5 ml-auto inline-flex h-8 w-8 items-center justify-center rounded-lg p-1.5 text-slate-400 hover:text-primary-400 focus:ring-2 focus:ring-slate-300 dark:text-slate-500"
+                class="-mx-1.5 -my-1.5 ml-auto inline-flex h-8 w-8 items-center justify-center rounded-lg p-1.5 text-gray-400 hover:text-primary-400 focus:ring-2 focus:ring-gray-300 dark:text-gray-500"
                 @click="resetNotification()"
             >
                 <XMarkIcon class="size-6" />
