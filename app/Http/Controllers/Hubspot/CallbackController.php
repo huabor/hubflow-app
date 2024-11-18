@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Hubspot;
 
 use App\Models\HubspotToken;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Response;
 use Laravel\Socialite\Facades\Socialite;
@@ -14,7 +15,7 @@ final class CallbackController
     /**
      * Handle the incoming request.
      */
-    public function __invoke(): Response
+    public function __invoke(): RedirectResponse
     {
         $user = Auth::user();
         $hubspotUser = Socialite::driver('hubspot')->user();
@@ -34,6 +35,6 @@ final class CallbackController
             ]
         );
 
-        dd($user, $hubspotUser, $token);
+        return to_route('hubspot.token.index')->with('action', 'close-popup');
     }
 }

@@ -19,7 +19,7 @@ final class IndexController
             ->whereNotNull('mollie_payment_id')
             ->orderBy('processed_at', 'DESC')
             ->get();
-            // dd($orders,$user->credit('EUR'));
+        // dd($orders,$user->credit('EUR'));
 
         return Inertia::render('Billing/Index', [
             'credit' => $user->credit('EUR'),

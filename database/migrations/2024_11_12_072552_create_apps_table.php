@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('hubspot_token_id');
 
             $table->string('type');
+            $table->string('name');
             $table->json('configuration')->default('{}');
 
             $table->timestamps();

@@ -13,7 +13,7 @@ class GetCompanyProperty extends Request
     protected Method $method = Method::GET;
 
     public function __construct(
-        protected string $property
+        protected ?string $property = null
     ) {}
 
     /**
@@ -21,6 +21,10 @@ class GetCompanyProperty extends Request
      */
     public function resolveEndpoint(): string
     {
+        if ($this->property === null) {
+            return '/properties/companies';
+        }
+
         return "/properties/companies/{$this->property}";
     }
 }

@@ -5,9 +5,10 @@ namespace App\Http\Integrations\Hubspot\Requests;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
+use Saloon\PaginationPlugin\Contracts\Paginatable;
 use Saloon\Traits\Body\HasJsonBody;
 
-class SearchCompanies extends Request implements HasBody
+class SearchCompanies extends Request implements HasBody, Paginatable
 {
     use HasJsonBody;
 
@@ -16,8 +17,7 @@ class SearchCompanies extends Request implements HasBody
      */
     protected Method $method = Method::POST;
 
-    public function __construct(
-    ) {}
+    public function __construct() {}
 
     /**
      * The endpoint for the request
@@ -30,7 +30,6 @@ class SearchCompanies extends Request implements HasBody
     protected function defaultBody(): array
     {
         $body = [
-            'limit' => 200,
             'properties' => [
                 'city',
                 'country',
@@ -54,6 +53,12 @@ class SearchCompanies extends Request implements HasBody
                             'value' => '39*',
                         ],
                     ],
+                ],
+            ],
+            'sorts' => [
+                [
+                    'propertyName' => 'hs_object_id',
+                    'direction' => 'ASCENDING',
                 ],
             ],
         ];

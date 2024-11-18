@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Models\StaticTableName;
 use Clickbar\Magellan\Database\Eloquent\HasPostgisColumns;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,6 +13,7 @@ class HubspotCompany extends Model
 {
     use HasFactory;
     use HasPostgisColumns;
+    use StaticTableName;
 
     /**
      * The attributes that are mass assignable.

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Profile;
 
-use App\Http\Requests\ProfileUpdateRequest;
+use App\Http\Requests\Profile\UpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 
@@ -11,7 +11,7 @@ final class UpdateController
     /**
      * Update the user's profile information.
      */
-    public function __invoke(ProfileUpdateRequest $request): RedirectResponse
+    public function __invoke(UpdateRequest $request): RedirectResponse
     {
         $request->user()->fill($request->validated());
 

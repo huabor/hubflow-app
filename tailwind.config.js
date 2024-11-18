@@ -12,6 +12,12 @@ export default {
         './resources/js/**/*.vue',
     ],
 
+    safelist: [
+        {
+            pattern: /size-*/,
+        },
+    ],
+
     theme: {
         extend: {
             fontFamily: {

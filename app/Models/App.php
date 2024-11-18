@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
+use App\Enums\AppType;
+use App\Traits\Models\StaticTableName;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class App extends Model
 {
     use HasFactory;
+    use StaticTableName;
 
     /**
      * The attributes that are mass assignable.
@@ -21,6 +23,7 @@ class App extends Model
         'hubspot_token_id',
 
         'type',
+        'name',
         'configuration',
     ];
 
@@ -32,6 +35,7 @@ class App extends Model
     protected function casts(): array
     {
         return [
+            'type' => AppType::class,
             'configuration' => 'object',
         ];
     }
@@ -47,11 +51,11 @@ class App extends Model
     }
 
     /**
-     * Get the hubspotToken associated with the Apps
+     * Get the Hubspot Token that owns the App
      */
-    public function hubspotToken(): HasOne
+    public function hubspotToken(): BelongsTo
     {
-        return $this->hasOne(
+        return $this->belongsTo(
             related: HubspotToken::class
         );
     }

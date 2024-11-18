@@ -85,7 +85,7 @@ return [
                 ],
             ],
 
-            /**
+        /**
          * The chain of subscription OrderItem preprocessors. These are called right before the Subscription's
          * OrderItem is processed into an OrderItem. You can use this for calculating variable costs a.k.a. metered
          * billing. Make sure the preprocessors extend the BaseOrderItemProcessor.
@@ -144,7 +144,7 @@ return [
                 ],
             ],
 
-            /**
+        /**
          * The chain of subscription OrderItem preprocessors. These are called right before the Subscription's
          * OrderItem is processed into an OrderItem. You can use this for calculating variable costs a.k.a. metered
          * billing. Make sure the preprocessors extend the BaseOrderItemProcessor.

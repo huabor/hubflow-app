@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Sanctum\Sanctum;
 use SocialiteProviders\HubSpot\Provider as HubspotProvider;
 use SocialiteProviders\Manager\SocialiteWasCalled;
 
@@ -31,7 +32,12 @@ class AppServiceProvider extends ServiceProvider
         }
 
         Event::listen(function (SocialiteWasCalled $event) {
-            $event->extendSocialite('hubspot', HubspotProvider::class);
+            $event->extendSocialite(
+                providerName: 'hubspot',
+                providerClass: HubspotProvider::class
+            );
         });
+
+        Sanctum::getAccessTokenFromRequestUsing(fn ($request) => $request->token);
     }
 }

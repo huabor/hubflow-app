@@ -42,6 +42,7 @@ export type PageProps<
     };
 
     flash?: {
+        action?: string;
         notification?: {
             type: string;
             message: string;
@@ -50,7 +51,7 @@ export type PageProps<
 };
 
 export interface HubspotToken {
-    id: string;
+    id: number;
 
     user?: User;
 
@@ -63,13 +64,44 @@ export interface HubspotToken {
     hub_domain: string;
 }
 
+export interface HubspotCompany {
+    id: number;
+    hubspot_token_id: number;
+
+    hubspot_id: string;
+
+    name: string;
+    industry_sector: string;
+
+    address: string;
+    city: string;
+    zip: string;
+    country: string;
+
+    coordinates: {
+        x: number;
+        y: number;
+    };
+
+    deep_link: string;
+}
+
+export type AppType = 'contact_cluster' | 'birthday_reminder';
+
+export interface AvailableApp {
+    type: AppType;
+    name: string;
+    description: string;
+}
+
 export interface App {
     id: string;
 
     hubspot_token?: HubspotToken;
     user?: User;
 
-    type: string;
+    type: AppType;
+    name: string;
     configuration: object;
 }
 

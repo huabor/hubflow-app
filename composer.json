@@ -15,11 +15,14 @@
         "laravel/tinker": "^2.9",
         "mollie/laravel-cashier-mollie": "^2.0",
         "saloonphp/laravel-plugin": "^3.0",
+        "saloonphp/pagination-plugin": "^2.0",
+        "saloonphp/rate-limit-plugin": "^2.0",
         "saloonphp/saloon": "^3.0",
-        "socialiteproviders/hubspot": "^4.1",
+        "socialiteproviders/hubspot": "dev-master",
         "tightenco/ziggy": "^2.0"
     },
     "require-dev": {
+        "barryvdh/laravel-debugbar": "^3.14",
         "fakerphp/faker": "^1.23",
         "laravel/breeze": "^2.2",
         "laravel/pint": "^1.13",

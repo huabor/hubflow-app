@@ -1,12 +1,59 @@
 <script setup lang="ts">
+import { Head, useForm } from '@inertiajs/vue3';
+import { onMounted, Ref, ref } from 'vue';
+
+import PrimaryButton from '@/Components/PrimaryButton.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { HubspotToken } from '@/types';
 import { TrashIcon } from '@heroicons/vue/24/outline';
-import { Head, useForm } from '@inertiajs/vue3';
 
-defineProps<{
+const props = defineProps<{
     tokens: HubspotToken[];
 }>();
+
+const tokensRef: Ref<HubspotToken[]> = ref([]);
+const openedWindow: Ref<Window | null> = ref(null);
+
+onMounted(() => {
+    tokensRef.value = props.tokens;
+    if (window.opener !== null) {
+        window.opener.postMessage(
+            JSON.stringify({
+                hubspotTokens: props.tokens,
+            }),
+            window.location.origin,
+        );
+    }
+
+    if (window.opener === null) {
+        window.addEventListener(
+            'message',
+            (event) => {
+                // Do we trust the sender of this message? (might be
+                // different from what we originally opened, for example).
+                if (event.origin !== window.location.origin) return;
+
+                const data = JSON.parse(event.data);
+                if (data.hubspotTokens !== undefined) {
+                    tokensRef.value = data.hubspotTokens;
+                }
+
+                if (openedWindow.value !== null) {
+                    openedWindow.value.close();
+                }
+            },
+            false,
+        );
+    }
+});
+
+const openConnectModal = () => {
+    openedWindow.value = window.open(
+        route('oauth.hubspot.redirect'),
+        'Hubflow Apps - Connect',
+        'resizeable,scrollbars,height=800,width=768',
+    );
+};
 
 const deleteToken = (token: HubspotToken) => {
     if (confirm('Are you sure you want to delete this token?')) {
@@ -31,6 +78,11 @@ const deleteToken = (token: HubspotToken) => {
                 <div
                     class="bg-white p-4 shadow sm:rounded-lg sm:p-8 dark:bg-gray-800"
                 >
+                    <div class="mb-4 flex justify-end">
+                        <PrimaryButton @click="openConnectModal">
+                            Connect
+                        </PrimaryButton>
+                    </div>
                     <div class="overflow-x-auto">
                         <table
                             class="w-full text-left text-sm text-gray-500 dark:text-gray-400"
@@ -39,7 +91,6 @@ const deleteToken = (token: HubspotToken) => {
                                 class="bg-gray-50 text-xs uppercase text-gray-900 dark:bg-gray-700 dark:text-gray-400"
                             >
                                 <tr>
-                                    <th scope="col" class="px-4 py-3">#</th>
                                     <th scope="col" class="px-4 py-3">User</th>
                                     <th scope="col" class="px-4 py-3">
                                         Account
@@ -51,13 +102,10 @@ const deleteToken = (token: HubspotToken) => {
                             </thead>
                             <tbody>
                                 <tr
-                                    v-for="token in tokens"
+                                    v-for="token in tokensRef"
                                     v-bind:key="token.id"
                                     class="border-b dark:border-gray-700"
                                 >
-                                    <td class="px-4 py-3">
-                                        {{ token.id }}
-                                    </td>
                                     <td class="px-4 py-3">
                                         <div class="text-base">
                                             {{ token.email }}

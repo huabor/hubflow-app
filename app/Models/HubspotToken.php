@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\Models\StaticTableName;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class HubspotToken extends Model
 {
     use HasFactory;
+    use StaticTableName;
 
     /**
      * The attributes that are mass assignable.
@@ -44,6 +47,16 @@ class HubspotToken extends Model
     {
         return $this->belongsTo(
             related: User::class,
+        );
+    }
+
+    /**
+     * Get all of the Hubspot Companies for the HubspotToken
+     */
+    public function hubspotCompanies(): HasMany
+    {
+        return $this->hasMany(
+            related: HubspotCompany::class,
         );
     }
 }

@@ -15,6 +15,7 @@ class EnsureUserIsSubscribed
      */
     public function handle($request, Closure $next)
     {
+        return $next($request);
         if ($request->user() && ! $request->user()->subscribed('default')) {
             // This user is not a paying customer...
             return redirect(route('billing.choose-subscription'));
