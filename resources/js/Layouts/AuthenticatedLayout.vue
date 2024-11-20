@@ -20,6 +20,7 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 import HubflowAppsLogo from '@/Components/HubflowAppsLogo.vue';
 import { useDark, useToggle } from '@vueuse/core';
 import dayjs from 'dayjs';
+import { computed } from 'vue';
 
 const resetNotification = () => {
     const pageProps = usePage().props;
@@ -27,6 +28,8 @@ const resetNotification = () => {
         pageProps.flash.notification = null;
     }
 };
+
+const user = computed(() => usePage().props.auth.user);
 
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
@@ -41,7 +44,7 @@ const toggleDark = useToggle(isDark);
                 <!-- Primary Navigation Menu -->
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div class="flex h-16 justify-between">
-                        <div class="flex">
+                        <div class="flex items-center gap-8">
                             <!-- Logo -->
                             <div class="flex shrink-0 items-center">
                                 <Link :href="route('app.index')">
@@ -49,6 +52,14 @@ const toggleDark = useToggle(isDark);
                                         class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200"
                                     />
                                 </Link>
+                            </div>
+
+                            <div v-if="$slots.header">
+                                <h2
+                                    class="flex items-center gap-2 rounded-xl bg-gray-200 p-2 text-lg leading-tight text-gray-800 dark:bg-gray-600 dark:text-white"
+                                >
+                                    <slot name="header" />
+                                </h2>
                             </div>
                         </div>
 
@@ -73,8 +84,8 @@ const toggleDark = useToggle(isDark);
                                                 $page.props.auth.subscription
                                                     .ends_at,
                                             ).format('YYYY-MM-DD HH:mm')
-                                        }}</span
-                                    >
+                                        }}
+                                    </span>
 
                                     <span v-else>
                                         Your Plan:
@@ -91,72 +102,117 @@ const toggleDark = useToggle(isDark);
                                     </span>
                                 </div>
                             </div>
-                            <div class="relative ms-3">
-                                <Dropdown align="right" width="48">
-                                    <template #trigger>
-                                        <span class="inline-flex rounded-md">
-                                            <button
-                                                type="button"
-                                                class="inline-flex items-center rounded-md border border-transparent px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-primary-400 focus:outline-none dark:text-gray-400"
-                                            >
-                                                {{
-                                                    $page.props.auth.user?.name
-                                                }}
 
-                                                <ChevronDownIcon
-                                                    class="-me-0.5 ms-2 h-4 w-4"
-                                                />
-                                            </button>
-                                        </span>
+                            <div class="relative ms-3">
+                                <Link
+                                    :href="route('app.index')"
+                                    class="flex items-center rounded-full pe-1 text-sm font-medium text-gray-800 hover:text-primary-600 md:me-0 dark:text-white dark:hover:text-primary-500"
+                                >
+                                    <Squares2X2Icon class="me-2 size-8" />
+                                    Apps
+                                </Link>
+                            </div>
+
+                            <div class="relative ms-6">
+                                <Dropdown align="right" width="56">
+                                    <template #trigger>
+                                        <button
+                                            class="flex items-center rounded-full pe-1 text-sm font-medium text-gray-800 hover:text-primary-600 md:me-0 dark:text-white dark:hover:text-primary-500"
+                                            type="button"
+                                        >
+                                            <img
+                                                class="me-2 h-8 w-8 rounded-full"
+                                                :src="user?.avatar"
+                                                :alt="user?.firstname"
+                                            />
+
+                                            {{ user?.firstname }}
+
+                                            <ChevronDownIcon
+                                                class="ms-3 h-4 w-4"
+                                            />
+                                        </button>
                                     </template>
 
                                     <template #content>
-                                        <button
-                                            type="button"
-                                            class="flex w-full items-center space-x-2 px-4 py-2 text-start text-sm leading-5 text-gray-700 transition duration-150 ease-in-out hover:text-primary-400 focus:text-primary-400 focus:outline-none dark:text-gray-300"
-                                            @click="toggleDark()"
+                                        <div
+                                            class="px-4 py-3 text-sm text-gray-900 dark:text-white"
                                         >
-                                            <template v-if="isDark">
-                                                <SunIcon class="size-5" />
-                                                <span>Light</span>
-                                            </template>
-                                            <template v-else>
-                                                <MoonIcon class="size-5" />
-                                                <span>Dark</span>
-                                            </template>
-                                        </button>
+                                            <div class="font-medium">
+                                                {{ user.firstname }}
+                                                {{ user.lastname }}
+                                            </div>
+                                            <div class="truncate">
+                                                {{ user.email }}
+                                            </div>
+                                        </div>
 
-                                        <DropdownLink
-                                            :href="route('hubspot.token.index')"
+                                        <div
+                                            class="px-4 py-3 text-sm text-gray-900 dark:text-white"
+                                            v-if="user.selected_hub"
                                         >
-                                            <KeyIcon class="size-5" />
-                                            <span>Token</span>
-                                        </DropdownLink>
+                                            <div class="truncate font-medium">
+                                                {{ user.selected_hub.domain }}
+                                            </div>
+                                            <div class="truncate">
+                                                {{ user.selected_hub.hub_id }}
+                                            </div>
+                                        </div>
 
-                                        <DropdownLink
-                                            :href="route('profile.edit')"
+                                        <div
+                                            class="py-2 text-sm text-gray-700 dark:text-gray-200"
                                         >
-                                            <UserIcon class="size-5" />
-                                            <span>Profile</span>
-                                        </DropdownLink>
+                                            <button
+                                                type="button"
+                                                class="flex w-full items-center space-x-2 px-4 py-2 text-start text-sm leading-5 text-gray-700 transition duration-150 ease-in-out hover:text-primary-400 focus:text-primary-400 focus:outline-none dark:text-gray-300"
+                                                @click="toggleDark()"
+                                            >
+                                                <template v-if="isDark">
+                                                    <SunIcon class="size-5" />
+                                                    <span>Light</span>
+                                                </template>
+                                                <template v-else>
+                                                    <MoonIcon class="size-5" />
+                                                    <span>Dark</span>
+                                                </template>
+                                            </button>
 
-                                        <DropdownLink
-                                            :href="route('billing.index')"
-                                        >
-                                            <BanknotesIcon class="size-5" />
-                                            <span>Billing</span>
-                                        </DropdownLink>
+                                            <DropdownLink
+                                                :href="
+                                                    route('hubspot.token.index')
+                                                "
+                                            >
+                                                <KeyIcon class="size-5" />
+                                                <span>Token</span>
+                                            </DropdownLink>
 
-                                        <DropdownLink
-                                            :href="route('logout')"
-                                            method="post"
-                                            as="button"
-                                        >
-                                            <ArrowLeftStartOnRectangleIcon
-                                                class="size-5"
-                                            />
-                                            <span>Log Out</span>
-                                        </DropdownLink>
+                                            <DropdownLink
+                                                :href="route('profile.edit')"
+                                            >
+                                                <UserIcon class="size-5" />
+                                                <span>Profile</span>
+                                            </DropdownLink>
+
+                                            <DropdownLink
+                                                :href="route('billing.index')"
+                                            >
+                                                <BanknotesIcon class="size-5" />
+                                                <span>Billing</span>
+                                            </DropdownLink>
+                                        </div>
+
+                                        <div class="py-2">
+                                            <DropdownLink
+                                                :href="route('logout')"
+                                                method="post"
+                                                as="button"
+                                            >
+                                                <ArrowLeftStartOnRectangleIcon
+                                                    class="size-5"
+                                                />
+                                                <span>Logout</span>
+                                            </DropdownLink>
+                                        </div>
                                     </template>
                                 </Dropdown>
                             </div>
@@ -165,31 +221,6 @@ const toggleDark = useToggle(isDark);
                 </div>
             </nav>
 
-            <!-- Page Heading -->
-            <header
-                class="h-20 bg-white shadow dark:bg-gray-800"
-                v-if="$slots.header"
-            >
-                <div
-                    class="mx-auto flex max-w-7xl items-center justify-between px-4 py-6 sm:px-6 lg:px-8"
-                >
-                    <h2
-                        class="flex items-center gap-2 text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200"
-                    >
-                        <slot name="header" />
-                    </h2>
-
-                    <Link
-                        :href="route('app.index')"
-                        class="flex items-center space-x-2 text-lg text-gray-800 hover:text-primary-400 dark:text-gray-200"
-                    >
-                        <span>All Apps</span>
-                        <Squares2X2Icon class="size-6" />
-                    </Link>
-                </div>
-            </header>
-
-            <!-- Page Content -->
             <main>
                 <slot />
             </main>

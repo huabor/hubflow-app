@@ -74,7 +74,7 @@ const enterprisePlan = computed(() => plans['enterprise-monthly']);
 
                     <a
                         href="#"
-                        class="mt-8 block rounded-md px-3.5 py-2.5 text-center font-semibold text-primary-400 ring-1 ring-inset ring-primary-200 hover:ring-primary-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-400 sm:mt-10"
+                        class="mt-8 block rounded-lg px-3.5 py-2.5 text-center font-semibold text-primary-400 ring-1 ring-inset ring-primary-200 hover:ring-primary-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-400 sm:mt-10"
                     >
                         Get started today
                     </a>
@@ -112,7 +112,7 @@ const enterprisePlan = computed(() => plans['enterprise-monthly']);
                     </ul>
                     <a
                         href="#"
-                        class="mt-8 block rounded-md bg-primary-400 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm duration-300 ease-in-out hover:bg-primary-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-400 sm:mt-10"
+                        class="mt-8 block rounded-lg bg-primary-400 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm duration-300 ease-in-out hover:bg-primary-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-400 sm:mt-10"
                     >
                         Get started today
                     </a>

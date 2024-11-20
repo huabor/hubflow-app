@@ -44,8 +44,6 @@ const resumeSubscription = () => {
     <Head title="Billing" />
 
     <AuthenticatedLayout>
-        <template v-if="currentSubscription !== null" #header> </template>
-
         <div class="py-12">
             <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
                 <div
@@ -142,7 +140,7 @@ const resumeSubscription = () => {
                                                 plan: plan.key,
                                             })
                                         "
-                                        class="mt-8 block rounded-md px-3.5 py-2.5 text-center font-semibold text-primary-400 ring-1 ring-inset ring-primary-200 hover:ring-primary-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-400 sm:mt-10"
+                                        class="mt-8 block rounded-lg px-3.5 py-2.5 text-center font-semibold text-primary-400 ring-1 ring-inset ring-primary-200 hover:ring-primary-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-400 sm:mt-10"
                                     >
                                         Switch Plan
                                     </Link>
@@ -186,7 +184,7 @@ const resumeSubscription = () => {
                                             plan: plan.key,
                                         })
                                     "
-                                    class="mt-8 block rounded-md px-3.5 py-2.5 text-center font-semibold text-primary-400 ring-1 ring-inset ring-primary-200 hover:ring-primary-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-400 sm:mt-10"
+                                    class="mt-8 block rounded-lg px-3.5 py-2.5 text-center font-semibold text-primary-400 ring-1 ring-inset ring-primary-200 hover:ring-primary-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-400 sm:mt-10"
                                 >
                                     Choose Plan
                                 </Link>

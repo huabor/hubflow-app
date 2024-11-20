@@ -5,22 +5,22 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use App\Traits\Models\StaticTableName;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Cashier\Billable;
-use Laravel\Cashier\Order\Contracts\ProvidesInvoiceInformation;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements ProvidesInvoiceInformation
+class User extends Authenticatable
 {
-    use Billable;
-
     use HasApiTokens;
 
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
+
     use Notifiable;
     use StaticTableName;
 
@@ -30,13 +30,14 @@ class User extends Authenticatable implements ProvidesInvoiceInformation
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'hub_id',
+
+        'hubspot_id',
+
+        'firstname',
+        'lastname',
         'email',
         'password',
-
-        'tax_percentage',
-        'trial_ends_at',
-        'extra_billing_information',
     ];
 
     /**
@@ -50,6 +51,24 @@ class User extends Authenticatable implements ProvidesInvoiceInformation
     ];
 
     /**
+     * The additional relations that should allways be loaded.
+     *
+     * @var array<int, string>
+     */
+    protected $with = [
+        'selectedHub',
+    ];
+
+    /**
+     * The additional attributes that should allways be appended.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = [
+        'avatar',
+    ];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -60,6 +79,28 @@ class User extends Authenticatable implements ProvidesInvoiceInformation
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the selected hub for the User
+     */
+    public function selectedHub(): BelongsTo
+    {
+        return $this->belongsTo(
+            related: Hub::class,
+            foreignKey: 'hub_id',
+        );
+    }
+
+    /**
+     * Get all hubs for the User
+     */
+    public function hubs(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            related: Hub::class,
+            table: HubspotToken::getTableName(),
+        );
     }
 
     /**
@@ -82,24 +123,15 @@ class User extends Authenticatable implements ProvidesInvoiceInformation
         );
     }
 
-    /**
-     * Get the receiver information for the invoice.
-     * Typically includes the name and some sort of (E-mail/physical) address.
-     *
-     * @return array An array of strings
-     */
-    public function getInvoiceInformation()
+    protected function avatar(): Attribute
     {
-        return [$this->name, $this->email];
-    }
+        $hash = md5(strtolower(trim($this->email)));
+        $firstname = $this->firstname[0] ?? '';
+        $lastname = $this->lastname[0] ?? '';
+        $fallback =urlencode("https://ui-avatars.com/api/$firstname$lastname/128/5E93D2/FFFFFF");
 
-    /**
-     * Get additional information to be displayed on the invoice. Typically a note provided by the customer.
-     *
-     * @return string|null
-     */
-    public function getExtraBillingInformation()
-    {
-        return $this->extra_billing_information;
+        return Attribute::make(
+            get: fn() => "https://www.gravatar.com/avatar/$hash?d=$fallback",
+        );
     }
 }

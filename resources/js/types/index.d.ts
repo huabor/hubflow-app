@@ -1,8 +1,13 @@
 export interface User {
     id: number;
-    name: string;
+    hub_id: number | null;
+
+    selected_hub: Hub | null;
+
+    firstname: string;
+    lastname: string;
+    avatar: string;
     email: string;
-    email_verified_at?: string;
 
     tax_percentage: number;
     trial_ends_at: string;
@@ -26,6 +31,10 @@ export type PageProps<
         user: User;
         subscription: Subscription | null;
         on_grace_period: boolean | null;
+        plan_details: {
+            enabled_apps: string[];
+            maximum_locations: number;
+        };
     };
 
     system: {
@@ -50,28 +59,36 @@ export type PageProps<
     };
 };
 
+export interface Hub {
+    id: number;
+    hub_id: string;
+    domain: string;
+
+    tax_percentage: number;
+    trial_ends_at: string;
+    extra_billing_information: string;
+}
+
 export interface HubspotToken {
     id: number;
 
     user?: User;
+    hub: Hub;
 
     token?: string;
     refresh_token?: string;
 
     hubspot_user_id: string;
     email: string;
-    hub_id: string;
-    hub_domain: string;
 }
 
 export interface HubspotCompany {
     id: number;
-    hubspot_token_id: number;
 
+    hub_id: string;
     hubspot_id: string;
 
     name: string;
-    industry_sector: string;
 
     address: string;
     city: string;
@@ -102,7 +119,13 @@ export interface App {
 
     type: AppType;
     name: string;
-    configuration: object;
+    configuration: object | ContactClusterConfiguration[];
+}
+
+export type ContactClusterConfiguration = {
+    name: string;
+    updated_at?: string;
+    filter: object[];
 }
 
 export interface Order {

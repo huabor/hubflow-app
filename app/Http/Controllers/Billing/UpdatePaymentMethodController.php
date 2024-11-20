@@ -13,8 +13,9 @@ final class UpdatePaymentMethodController
     public function __invoke(Request $request): RedirectResponse
     {
         $user = $request->user();
+        $hub = $user->selectedHub;
 
-        $response = $user->updatePaymentMethod()->create();
+        $response = $hub->updatePaymentMethod()->create();
 
         return $response;
     }

@@ -14,7 +14,7 @@ import 'leaflet-routing-machine';
 import { MarkerClusterGroup } from 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet/dist/leaflet.css';
-
+//https://leaflet.github.io/Leaflet.heat/dist/leaflet-heat.js
 import { App, HubspotCompany } from '@/types';
 import {
     ArrowDownIcon,
@@ -46,8 +46,9 @@ const routeSummary: Ref<{
 const routingControl: Ref<Routing.Control | null> = ref(null);
 
 onMounted(async () => {
+    return 
     const appLink = route('app.show', {
-        app: props.app,
+        type: props.app.type,
     });
 
     let lat = 46.6995607;
@@ -169,12 +170,6 @@ onMounted(async () => {
     });
 
     map.addLayer(markers);
-
-    addWaypoint(props.companies.find((c) => c.name === 'Stöfflhütte'));
-    addWaypoint(props.companies.find((c) => c.name === 'Fanes Hütte'));
-    addWaypoint(props.companies.find((c) => c.name === 'Garni Hotel Wildbach'));
-
-    document.querySelector('[title="Stöfflhütte"]')?.click();
 });
 
 const bindMarkerPopup = (marker: L.Marker, e: L.LeafletMouseEvent) => {
@@ -240,7 +235,7 @@ const getWaypointChar = (number: number) => String.fromCharCode(number + 65);
 </script>
 
 <template>
-    <div id="map" class="h-full w-full"></div>
+    <div id="map" class=" rounded-xl h-full w-full bg-yellow-400"></div>
 
     <div ref="popupcard" id="popupcard" v-if="showTeleportContent">
         <Teleport :to="'.leaflet-popup-content'">
@@ -255,12 +250,12 @@ const getWaypointChar = (number: number) => String.fromCharCode(number + 65);
     </div>
 
     <div
+        v-if="routeSummary !== null"
         class="absolute right-4 top-4 z-[999] space-y-2 rounded-xl bg-white p-4"
     >
-        <div v-if="routeSummary" class="flex items-center ">
+        <div v-if="routeSummary" class="flex items-center">
             {{ waypoints.length }} Stationen in
-            <span class="mx-1 text-lg text-primary-400"
-                >
+            <span class="mx-1 text-lg text-primary-400">
                 <template v-if="routeSummary.h > 0"
                     >{{ routeSummary.h }}h</template
                 >

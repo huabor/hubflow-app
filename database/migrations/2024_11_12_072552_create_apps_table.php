@@ -14,8 +14,7 @@ return new class extends Migration
         Schema::create('apps', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('user_id');
-            $table->foreignId('hubspot_token_id');
+            $table->foreignId('hub_id');
 
             $table->string('type');
             $table->string('name');

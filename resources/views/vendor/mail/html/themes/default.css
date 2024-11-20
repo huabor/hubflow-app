@@ -29,7 +29,11 @@ blockquote {
 }
 
 a {
-    color: #3869d4;
+    color: #5e93d2;
+}
+
+a:hover {
+    color: #295ca0;
 }
 
 a img {
@@ -39,7 +43,7 @@ a img {
 /* Typography */
 
 h1 {
-    color: #3d4852;
+    color: #5e93d2;
     font-size: 18px;
     font-weight: bold;
     margin-top: 0;
@@ -113,9 +117,10 @@ img {
 /* Logo */
 
 .logo {
-    height: 85px;
-    max-height: 85px;
-    width: 220px;
+    height: 65px;
+    max-height: 65px;
+    width: 100%;
+    max-width: 270px;
 }
 
 /* Body */
@@ -234,11 +239,11 @@ img {
 
 .button-blue,
 .button-primary {
-    background-color: #2d3748;
-    border-bottom: 8px solid #2d3748;
-    border-left: 18px solid #2d3748;
-    border-right: 18px solid #2d3748;
-    border-top: 8px solid #2d3748;
+    background-color: #5e93d2;
+    border-bottom: 8px solid #5e93d2;
+    border-left: 18px solid #5e93d2;
+    border-right: 18px solid #5e93d2;
+    border-top: 8px solid #5e93d2;
 }
 
 .button-green,
@@ -262,18 +267,18 @@ img {
 /* Panels */
 
 .panel {
-    border-left: #2d3748 solid 4px;
+    border-left: #5e93d2 solid 4px;
     margin: 21px 0;
 }
 
 .panel-content {
-    background-color: #edf2f7;
-    color: #718096;
+    background-color: #e6edf8;
+    color: #20406c;
     padding: 16px;
 }
 
 .panel-content p {
-    color: #718096;
+    color: #20406c;
 }
 
 .panel-item {

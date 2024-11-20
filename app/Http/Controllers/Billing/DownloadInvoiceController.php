@@ -13,6 +13,6 @@ final class DownloadInvoiceController
      */
     public function __invoke(Request $request, Order $order): Response
     {
-        return $request->user()->downloadInvoice($order->id);
+        return $request->user()->selectedHub->downloadInvoice($order->id);
     }
 }

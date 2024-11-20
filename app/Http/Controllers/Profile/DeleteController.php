@@ -14,10 +14,6 @@ final class DeleteController
      */
     public function __invoke(Request $request): RedirectResponse
     {
-        $request->validate([
-            'password' => ['required', 'current_password'],
-        ]);
-
         $user = $request->user();
 
         Auth::logout();

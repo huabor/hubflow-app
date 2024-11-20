@@ -28,10 +28,6 @@ final class CrmCardController
 
             if ($company !== null) {
                 $renderProps['company'] = $company;
-                $company->coordinates = [
-                    'x' => $company->coordinates->getX(),
-                    'y' => $company->coordinates->getY(),
-                ];
             }
         }
 

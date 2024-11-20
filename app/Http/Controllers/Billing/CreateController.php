@@ -10,17 +10,15 @@ use Laravel\Cashier\SubscriptionBuilder\RedirectToCheckoutResponse;
 
 final class CreateController
 {
-    /**
-     * Update the user's profile information.
-     */
     public function __invoke(Request $request, string $plan): RedirectResponse|Response
     {
         $user = $request->user();
+        $hub = $user->selectedHub;
 
         $name = 'default';
 
-        if (! $user->subscribed($name, $plan)) {
-            $result = $user->newSubscription($name, $plan)->create();
+        if (! $hub->subscribed($name, $plan)) {
+            $result = $hub->newSubscription($name, $plan)->create();
 
             if (is_a($result, RedirectToCheckoutResponse::class)) {
                 return Inertia::location($result->getTargetUrl());

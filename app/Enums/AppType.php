@@ -12,4 +12,18 @@ enum AppType: string
 
     case CONTACT_CLUSTER = 'contact_cluster';
     case BIRTHDAY_REMINDER = 'birthday_reminder';
+
+    const TYPE_DEFINITION = [
+        self::CONTACT_CLUSTER->value => [
+            'type' => self::CONTACT_CLUSTER->value,
+            'name' => 'Contact Cluster',
+            'description' => '',
+        ],
+
+        self::BIRTHDAY_REMINDER->value => [
+            'type' => self::BIRTHDAY_REMINDER->value,
+            'name' => 'Birthday Reminder',
+            'description' => '',
+        ],
+    ];
 }

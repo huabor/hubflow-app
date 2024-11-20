@@ -21,19 +21,17 @@ class HubspotCompany extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'hubspot_token_id',
-
+        'hub_id',
         'hubspot_id',
 
         'name',
-        'industry_sector',
 
         'address',
         'city',
         'zip',
         'country',
 
-        'coordinates',
+        'location',
     ];
 
     /**
@@ -42,6 +40,7 @@ class HubspotCompany extends Model
      * @var array<int, string>
      */
     protected $appends = [
+        'coordinates',
         'deep_link',
     ];
 
@@ -51,7 +50,7 @@ class HubspotCompany extends Model
      * @var array<int, string>
      */
     protected array $postgisColumns = [
-        'coordinates' => [
+        'location' => [
             'type' => 'geometry',
             'srid' => 4326,
         ],
@@ -67,9 +66,16 @@ class HubspotCompany extends Model
         );
     }
 
-    /**
-     * Get the user's first name.
-     */
+    protected function coordinates(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => [
+                'x' => $this->location->getX(),
+                'y' => $this->location->getY(),
+            ]
+        );
+    }
+
     protected function deepLink(): Attribute
     {
         return Attribute::make(

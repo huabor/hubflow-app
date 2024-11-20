@@ -13,15 +13,16 @@ final class ResumeSubscriptionController
     public function __invoke(Request $request): RedirectResponse
     {
         $user = $request->user();
+        $hub = $user->selectedHub;
 
-        if (! $user->subscription('default')->onGracePeriod()) {
+        if (! $hub->subscription('default')->onGracePeriod()) {
             return to_route('billing.choose-subscription')->with('notification', [
                 'type' => 'error',
                 'message' => 'Subscription cannot be resumed!',
             ]);
         }
 
-        $user->subscription('default')->resume();
+        $hub->subscription('default')->resume();
 
         return to_route('billing.choose-subscription')->with('notification', [
             'type' => 'success',

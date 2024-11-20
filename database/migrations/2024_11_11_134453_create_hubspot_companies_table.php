@@ -17,19 +17,17 @@ return new class extends Migration
         Schema::create('hubspot_companies', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('hubspot_token_id');
+            $table->foreignId('hub_id');
 
-            $table->string('hubspot_id');
+            $table->string('hubspot_id')->index();
 
             $table->string('name')->nullable();
-            $table->string('industry_sector')->nullable();
-
             $table->string('address')->nullable();
             $table->string('city')->nullable();
             $table->string('zip')->nullable();
             $table->string('country')->nullable();
 
-            $table->magellanPoint('coordinates')->nullable();
+            $table->magellanPoint('location')->nullable();
 
             $table->timestamps();
         });

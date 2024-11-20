@@ -36,7 +36,6 @@ class SearchCompanies extends Request implements HasBody, Paginatable
                 'name',
                 'zip',
                 'address',
-                'industry_sector',
                 'hubspot_owner_id',
                 'hs_all_owner_ids',
             ],

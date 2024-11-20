@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\AppType;
+use App\Events\System\Registered;
 use App\Http\Controllers\App\ContactCluster\AppController as ContactClusterAppController;
 use App\Http\Controllers\App\CreateController as AppCreateController;
 use App\Http\Controllers\App\CrmCardController as AppCrmCardController;
@@ -22,36 +23,80 @@ use App\Http\Controllers\Hubspot\CallbackController as HubspotCallbackController
 use App\Http\Controllers\Hubspot\DeleteController as HubspotDeleteController;
 use App\Http\Controllers\Hubspot\IndexController as HubspotIndexController;
 use App\Http\Controllers\Hubspot\RedirectController as HubspotRedirectController;
+use App\Http\Controllers\Hubspot\SelectHubController as HubspotSelectHubController;
 use App\Http\Controllers\Profile\DeleteController as ProfileDeleteController;
 use App\Http\Controllers\Profile\IndexController as ProfileIndexController;
-use App\Http\Controllers\Profile\UpdateController as ProfileUpdateController;
-use App\Http\Middleware\EnsureUserIsSubscribed;
+use App\Http\Middleware\EnsureHubIsSubscribed;
+use App\Http\Middleware\EnsureUserHasSelectedHub;
+use App\Mail\System\Welcome;
+use App\Models\HubspotCompany;
 use App\Models\HubspotToken;
-use Illuminate\Foundation\Application;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-})->name('home');
+Route::get('/test', function () {
+    $user = User::find(1);
+
+    // return new Welcome(
+    //     user: $user,
+    // );
+    // Mail::to(
+    //     users: $user->email,
+    //     name: "$user->firstname $user->lastname",
+    // )->send(
+    //     new Welcome(
+    //         user: $user,
+    //     )
+    // );
+    event(new Registered($user));
+    dd(Auth::user());
+
+    return Inertia::render('Home');
+})->name('test');
+
+Route::get('/', fn () => Inertia::render('Home'))->name('home');
+Route::get('/tos', fn () => Inertia::render('Home'))->name('tos');
+
+Route::get('oauth/hubspot/redirect', HubspotRedirectController::class)->name('oauth.hubspot.redirect');
+Route::get('oauth/hubspot/callback', HubspotCallbackController::class)->name('oauth.hubspot.callback');
+
+Route::middleware('auth')->group(function () {
+    Route::get('hubspot', HubspotIndexController::class)->name('hubspot.token.index');
+    Route::post('hubspot/select/{hub}', HubspotSelectHubController::class)->name('hubspot.select-hub');
+    Route::delete('hubspot/{token}', HubspotDeleteController::class)->name('hubspot.token.delete');
+
+    Route::get('profile', ProfileIndexController::class)->name('profile.edit');
+    Route::delete('profile', ProfileDeleteController::class)->name('profile.destroy');
+});
 
 Route::middleware([
     'auth',
     'verified',
-    EnsureUserIsSubscribed::class,
+    EnsureUserHasSelectedHub::class,
 ])
     ->group(function () {
         Route::get('billing', BillingIndexController::class)->name('billing.index');
         Route::patch('billing', BillingUpdateController::class)->name('billing.update');
         Route::get('billing/download-invoice/{order}', BillingDownloadInvoiceController::class)->name('billing.download-invoice');
 
+        Route::get('billing/subscribe', BillingChooseSubscriptionController::class)->name('billing.choose-subscription');
+        Route::get('billing/subscribe/{plan}', BillingCreateController::class)->name('billing.subscribe');
+        Route::get('billing/subscribe/switch/{plan}', BillingSwitchPlanController::class)->name('billing.switch-plan');
+        Route::patch('billing/resume', BillingResumeSubscriptionController::class)->name('billing.resume');
+        Route::delete('billing/cancel', BillingCancelSubscriptionController::class)->name('billing.cancel');
+    });
+
+Route::middleware([
+    'auth',
+    'verified',
+    EnsureUserHasSelectedHub::class,
+    // EnsureHubIsSubscribed::class,
+])
+    ->group(function () {
         Route::get('billing/update-payment-method', BillingUpdatePaymentMethodController::class)->name('billing.update-payment-method');
 
         Route::get('app', AppIndexController::class)->name('app.index');
@@ -59,31 +104,15 @@ Route::middleware([
         Route::post('app', AppStoreController::class)->name('app.store');
         Route::post('app/validate-base-information', AppValidateBaseInformationController::class)->name('app.validate-base-information');
         Route::get('app/create/{type}', AppCreateController::class)->name('app.create');
-        Route::get('app/{app}', AppShowController::class)->name('app.show');
+        Route::get('app/{type}', AppShowController::class)->name('app.show');
 
         Route::get('app/{app}/contact-cluster', ContactClusterAppController::class)->name('app.contact-cluster');
 
-        Route::get('hubspot', HubspotIndexController::class)->name('hubspot.token.index');
-        Route::delete('hubspot/{token}', HubspotDeleteController::class)->name('hubspot.token.delete');
         Route::get('hubspot/api/{token}/company-property', HubspotApiCompanyPropertyController::class)->name('hubspot.api.company-property');
-
-        Route::get('oauth/hubspot/redirect', HubspotRedirectController::class)->name('oauth.hubspot.redirect');
-        Route::get('oauth/hubspot/callback', HubspotCallbackController::class)->name('oauth.hubspot.callback');
     });
 
-Route::middleware('auth')->group(function () {
-    Route::get('billing/subscribe', BillingChooseSubscriptionController::class)->name('billing.choose-subscription');
-    Route::get('billing/subscribe/{plan}', BillingCreateController::class)->name('billing.subscribe');
-    Route::get('billing/subscribe/switch/{plan}', BillingSwitchPlanController::class)->name('billing.switch-plan');
-    Route::patch('billing/resume', BillingResumeSubscriptionController::class)->name('billing.resume');
-    Route::delete('billing/cancel', BillingCancelSubscriptionController::class)->name('billing.cancel');
-
-    Route::get('profile', ProfileIndexController::class)->name('profile.edit');
-    Route::patch('profile', ProfileUpdateController::class)->name('profile.update');
-    Route::delete('profile', ProfileDeleteController::class)->name('profile.destroy');
-});
-
 Route::get('/hubspot/crm-card/contact-cluster', function (Request $request) {
+    $hubId = $request->get('portalId');
     $hubspotUserId = $request->get('userId');
     $hubspotCompanyId = $request->get('associatedObjectId');
 
@@ -91,7 +120,8 @@ Route::get('/hubspot/crm-card/contact-cluster', function (Request $request) {
         ->where('hubspot_user_id', $hubspotUserId)
         ->firstOrFail();
 
-    $hubspotCompany = $hubspotToken->hubspotCompanies()
+    $hubspotCompany = HubspotCompany::query()
+        ->where('hub_id', $hubId)
         ->where('hubspot_id', $hubspotCompanyId)
         ->firstOrFail();
 

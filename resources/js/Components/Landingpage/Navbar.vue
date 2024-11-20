@@ -45,20 +45,8 @@ const isTop = computed(() => y.value === 0);
 
                     <template v-else>
                         <Link
-                            :href="route('login')"
-                            class="px-6 py-2 text-base font-medium duration-300 ease-in-out"
-                            :class="{
-                                'text-white hover:opacity-70': isTop,
-                                'text-gray-800 hover:text-primary-400 dark:text-white':
-                                    !isTop,
-                            }"
-                        >
-                            Sign In
-                        </Link>
-
-                        <Link
-                            :href="route('register')"
-                            class="rounded-md px-6 py-2 text-base font-medium duration-300 ease-in-out"
+                            :href="route('signin')"
+                            class="rounded-lg px-6 py-2 text-base font-medium duration-300 ease-in-out"
                             :class="{
                                 'bg-white bg-opacity-20 hover:bg-opacity-100 hover:text-primary-400':
                                     isTop,
@@ -66,7 +54,7 @@ const isTop = computed(() => y.value === 0);
                                     !isTop,
                             }"
                         >
-                            Sign Up
+                            Get Started
                         </Link>
                     </template>
                 </div>

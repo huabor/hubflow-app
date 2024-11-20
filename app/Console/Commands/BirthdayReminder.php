@@ -6,7 +6,7 @@ use App\Http\Integrations\Hubspot\CrmConnector;
 use App\Http\Integrations\Hubspot\Requests\GetCompany;
 use App\Http\Integrations\Hubspot\Requests\GetOwner;
 use App\Http\Integrations\Hubspot\Requests\SearchContacts;
-use App\Mail\BirthdayReminder as BirthdayReminderMail;
+use App\Mail\Apps\BirthdayReminder as BirthdayReminderMail;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;

@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('hubspot_tokens', function (Blueprint $table) {
             $table->id();
+
+            $table->foreignId('hub_id');
             $table->foreignId('user_id');
 
             $table->string('token');
@@ -20,8 +22,6 @@ return new class extends Migration
 
             $table->integer('hubspot_user_id');
             $table->string('email')->nullable();
-            $table->integer('hub_id');
-            $table->string('hub_domain');
 
             $table->timestamps();
         });

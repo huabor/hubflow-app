@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 
-class EnsureUserIsSubscribed
+class EnsureHubIsSubscribed
 {
     /**
      * Handle an incoming request.
@@ -15,8 +15,9 @@ class EnsureUserIsSubscribed
      */
     public function handle($request, Closure $next)
     {
-        return $next($request);
-        if ($request->user() && ! $request->user()->subscribed('default')) {
+        $hub = $request->user()->selectedHub;
+
+        if ($hub && ! $hub->subscribed('default')) {
             // This user is not a paying customer...
             return redirect(route('billing.choose-subscription'));
         }

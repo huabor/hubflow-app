@@ -1,14 +1,16 @@
 <?php
 
-namespace App\Mail;
+namespace App\Mail\System;
 
+use App\Models\User;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class BirthdayReminder extends Mailable
+class Welcome extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -16,8 +18,7 @@ class BirthdayReminder extends Mailable
      * Create a new message instance.
      */
     public function __construct(
-        public array $receiver,
-        public array $birthdays,
+        public User $user
     ) {}
 
     /**
@@ -26,7 +27,7 @@ class BirthdayReminder extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Birthday Reminder',
+            subject: 'Welcome to HubFlow Apps! 🎉',
         );
     }
 
@@ -36,7 +37,7 @@ class BirthdayReminder extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'mail.birthday-reminder',
+            markdown: 'mail.system.welcome',
         );
     }
 

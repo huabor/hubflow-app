@@ -16,8 +16,29 @@ final class ShowController
     /**
      * Display the user's profile form.
      */
-    public function __invoke(Request $request, App $app): Response|RedirectResponse|Collection
+    public function __invoke(Request $request, AppType $type): Response|RedirectResponse|Collection
     {
+        $user = $request->user();
+        $hub = $user->selectedHub;
+
+        $appType = AppType::TYPE_DEFINITION[$type->value];
+
+        $app = $hub->apps()
+            ->where(
+                column: 'type',
+                operator: '=',
+                value: $type
+            )
+            ->first();
+
+        if ($app === null) {
+            $app = new App;
+            $app->hub_id = $hub->id;
+            $app->type = $type;
+            $app->name = $appType['name'];
+            $app->save();
+        }
+
         $renderProps = [
             'app' => $app,
         ];
@@ -32,8 +53,8 @@ final class ShowController
             if (isset($request->company)) {
                 $company = HubspotCompany::query()->find($request->company);
                 $company->coordinates = [
-                    'x' => $company->coordinates->getX(),
-                    'y' => $company->coordinates->getY(),
+                    'x' => $company->location->getX(),
+                    'y' => $company->location->getY(),
                 ];
 
                 if ($company !== null) {

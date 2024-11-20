@@ -35,7 +35,7 @@ class UpdateCompanyCoordinates implements ShouldQueue
 
         $result = $geocoder->geocodeQuery(GeocodeQuery::create($address));
         if (count($result) > 0) {
-            $company->coordinates = Point::make(
+            $company->location = Point::make(
                 x: $result->first()->getCoordinates()->getLatitude(),
                 y: $result->first()->getCoordinates()->getLongitude(),
             );

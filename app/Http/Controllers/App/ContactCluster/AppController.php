@@ -17,12 +17,20 @@ final class AppController
      */
     public function __invoke(Request $request, App $app): JsonResponse
     {
+        $user = $request->user();
+        $hub = $user->selectedHub;
         $hubspotToken = $app->hubspotToken;
 
         Debugbar::startMeasure('render', 'Read all Companies');
         $companies = DB::table(HubspotCompany::getTableName())
-            ->where('hubspot_token_id', $hubspotToken->id)
-            ->whereNotNull('coordinates')
+            ->where(
+                column: 'hub_id',
+                operator: '=',
+                value: $hub->id
+            )
+            ->whereNotNull(
+                columns: 'location'
+            )
             // ->limit(5)
             ->get();
         Debugbar::stopMeasure('render');
@@ -30,11 +38,11 @@ final class AppController
         Debugbar::startMeasure('render', 'Prepare coordinates');
         $parser = app()->make(WKBParser::class);
         foreach ($companies as $company) {
-            $company->deep_link = "https://app-eu1.hubspot.com/contacts/{$hubspotToken->hub_id}/record/0-2/{$company->hubspot_id}";
-            $coordinates = $parser->parse($company->coordinates);
+            $company->deep_link = "https://app-eu1.hubspot.com/contacts/{$company->hub_id}/record/0-2/{$company->hubspot_id}";
+            $location = $parser->parse($company->location);
             $company->coordinates = [
-                'x' => $coordinates->getX(),
-                'y' => $coordinates->getY(),
+                'x' => $location->getX(),
+                'y' => $location->getY(),
             ];
         }
         Debugbar::stopMeasure('render');

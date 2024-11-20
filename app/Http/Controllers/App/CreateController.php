@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\App;
 
+use App\Enums\AppType;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -12,9 +13,10 @@ final class CreateController
     /**
      * Display the user's profile form.
      */
-    public function __invoke(Request $request, string $type): Response|RedirectResponse
+    public function __invoke(Request $request, AppType $type): Response|RedirectResponse
     {
-        $appType = collect(config('app_types'))->first(fn ($t) => $t['type'] === $type);
+        $appType = AppType::TYPE_DEFINITION[$type->value];
+
         if ($appType === null) {
             return to_route('app.index')->with('notification', [
                 'type' => 'warning',

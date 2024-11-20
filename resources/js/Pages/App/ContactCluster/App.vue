@@ -11,6 +11,7 @@ import 'leaflet/dist/leaflet.css';
 import { App } from '@/types';
 
 import AppIcon from '@/Components/AppIcon.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Map from './Partials/Map.vue';
 
@@ -43,9 +44,32 @@ onMounted(async () => {
             {{ app.name }}
         </template>
 
-        <div class="h-[calc(100vh_-_9rem)]">
+        <div class="h-[calc(100vh_-_4rem)]">
             <div class="relative h-full w-full p-12">
-                <div class="relative h-full w-full overflow-hidden rounded-lg">
+                <div
+                    class="relative flex h-full w-full gap-8 overflow-hidden rounded-lg"
+                >
+                    <div
+                        class="flex h-full w-80 flex-col justify-between rounded-xl bg-gray-200 text-gray-600 dark:bg-gray-600 dark:text-white"
+                    >
+                        <div class="overflow-auto p-4">
+                            <h3 class="flex items-center gap-2 text-lg leading-tight text-gray-800">Cluster</h3>
+                            <div
+                                class="overflow-auto"
+                                v-for="(configuration, i) in app.configuration"
+                                :key="i"
+                            >
+                                {{ configuration }}
+                            </div>
+                        </div>
+
+                        <div class="p-4">
+                            <PrimaryButton class="w-full"
+                                >Create new Cluster</PrimaryButton
+                            >
+                        </div>
+                    </div>
+
                     <Map
                         v-if="!loading"
                         :app="app"

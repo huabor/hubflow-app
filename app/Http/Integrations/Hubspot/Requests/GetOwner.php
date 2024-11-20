@@ -13,7 +13,8 @@ class GetOwner extends Request
     protected Method $method = Method::GET;
 
     public function __construct(
-        protected string $userId,
+        protected string|int $userId,
+        protected string $idProperty = 'id'
     ) {}
 
     /**
@@ -27,7 +28,7 @@ class GetOwner extends Request
     protected function defaultQuery(): array
     {
         return [
-            'idProperty' => 'id',
+            'idProperty' => $this->idProperty,
             'archived' => 'false',
         ];
     }

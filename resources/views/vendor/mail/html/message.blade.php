@@ -2,7 +2,7 @@
 {{-- Header --}}
 <x-slot:header>
 <x-mail::header :url="config('app.url')">
-<img src="https://cdn.bnamic.com/brandnamic_files/logo_bn/bn_logo_2019_rgb.png" class="logo" alt="Laravel Logo">
+<img src="{{asset('hubflow-apps-logo.png')}}" class="logo" alt="{{config('app.name')}}">
 </x-mail::header>
 </x-slot:header>
 

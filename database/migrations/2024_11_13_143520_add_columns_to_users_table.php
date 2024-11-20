@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('hubs', function (Blueprint $table) {
             $table->string('mollie_customer_id')->nullable();
             $table->string('mollie_mandate_id')->nullable();
             $table->decimal('tax_percentage', 6, 4)->default(0);
@@ -25,7 +25,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('hubs', function (Blueprint $table) {
             $table->dropColumn('mollie_customer_id');
             $table->dropColumn('mollie_mandate_id');
             $table->dropColumn('tax_percentage');

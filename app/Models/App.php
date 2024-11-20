@@ -19,7 +19,7 @@ class App extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'user_id',
+        'hub_id',
         'hubspot_token_id',
 
         'type',

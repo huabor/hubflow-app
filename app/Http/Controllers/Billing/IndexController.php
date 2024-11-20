@@ -14,15 +14,15 @@ final class IndexController
     public function __invoke(Request $request): Response
     {
         $user = $request->user();
+        $hub = $user->selectedHub;
 
-        $orders = $user->orders()
+        $orders = $hub->orders()
             ->whereNotNull('mollie_payment_id')
             ->orderBy('processed_at', 'DESC')
             ->get();
-        // dd($orders,$user->credit('EUR'));
 
         return Inertia::render('Billing/Index', [
-            'credit' => $user->credit('EUR'),
+            'credit' => $hub->credit('EUR'),
             'orders' => $orders,
         ]);
     }

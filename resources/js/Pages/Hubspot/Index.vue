@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
-import { onMounted, Ref, ref } from 'vue';
+import { Head, router, useForm, usePage } from '@inertiajs/vue3';
+import { onMounted, onUpdated, Ref, ref } from 'vue';
 
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { HubspotToken } from '@/types';
-import { TrashIcon } from '@heroicons/vue/24/outline';
+import { Hub, HubspotToken } from '@/types';
+import { CheckIcon, TrashIcon } from '@heroicons/vue/24/outline';
 
 const props = defineProps<{
     tokens: HubspotToken[];
@@ -14,13 +15,19 @@ const props = defineProps<{
 const tokensRef: Ref<HubspotToken[]> = ref([]);
 const openedWindow: Ref<Window | null> = ref(null);
 
+onUpdated(() => {
+    console.log(props);
+    tokensRef.value = props.tokens;
+});
+
 onMounted(() => {
     tokensRef.value = props.tokens;
     if (window.opener !== null) {
         window.opener.postMessage(
-            JSON.stringify({
-                hubspotTokens: props.tokens,
-            }),
+            {
+                closeModal: true,
+            },
+
             window.location.origin,
         );
     }
@@ -29,13 +36,13 @@ onMounted(() => {
         window.addEventListener(
             'message',
             (event) => {
-                // Do we trust the sender of this message? (might be
-                // different from what we originally opened, for example).
                 if (event.origin !== window.location.origin) return;
 
-                const data = JSON.parse(event.data);
-                if (data.hubspotTokens !== undefined) {
-                    tokensRef.value = data.hubspotTokens;
+                const data = event.data;
+
+                if (data.closeModal === true) {
+                    console.log(usePage().props.auth.user.hub_id);
+                    router.reload({ only: ['auth', 'tokens'] });
                 }
 
                 if (openedWindow.value !== null) {
@@ -53,6 +60,15 @@ const openConnectModal = () => {
         'Hubflow Apps - Connect',
         'resizeable,scrollbars,height=800,width=768',
     );
+};
+
+const selectHub = (hub: Hub) => {
+    useForm({}).post(route('hubspot.select-hub', { hub }), {
+        preserveScroll: true,
+        onSuccess: () => {},
+        onError: () => {},
+        onFinish: () => {},
+    });
 };
 
 const deleteToken = (token: HubspotToken) => {
@@ -78,7 +94,12 @@ const deleteToken = (token: HubspotToken) => {
                 <div
                     class="bg-white p-4 shadow sm:rounded-lg sm:p-8 dark:bg-gray-800"
                 >
-                    <div class="mb-4 flex justify-end">
+                    <div class="mb-4 flex items-center justify-between">
+                        <h3
+                            class="flex items-center gap-2 text-lg font-semibold leading-tight text-gray-800 dark:text-gray-200"
+                        >
+                            Select Hub or Connect to a new one
+                        </h3>
                         <PrimaryButton @click="openConnectModal">
                             Connect
                         </PrimaryButton>
@@ -116,20 +137,56 @@ const deleteToken = (token: HubspotToken) => {
                                     </td>
                                     <td class="px-4 py-3">
                                         <div class="text-base">
-                                            {{ token.hub_domain }}
+                                            {{ token.hub?.domain }}
                                         </div>
                                         <div class="font-normal text-gray-500">
-                                            {{ token.hub_id }}
+                                            {{ token.hub?.hub_id }}
                                         </div>
                                     </td>
                                     <td class="px-4 py-3">
-                                        <button
-                                            @click="() => deleteToken(token)"
-                                            class="inline-flex items-center rounded-lg p-0.5 text-center text-sm font-medium text-gray-500 hover:text-gray-800 focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
-                                            type="button"
+                                        <div
+                                            class="flex items-center justify-end gap-2"
                                         >
-                                            <TrashIcon class="size-5" />
-                                        </button>
+                                            <SecondaryButton
+                                                :disabled="
+                                                    token.hub.id ===
+                                                    $page.props.auth.user.hub_id
+                                                "
+                                                :class="{
+                                                    '!border-green-400 !text-green-400 !opacity-100':
+                                                        token.hub.id ===
+                                                        $page.props.auth.user
+                                                            .hub_id,
+                                                }"
+                                                @click="
+                                                    () => selectHub(token.hub)
+                                                "
+                                            >
+                                                <template
+                                                    v-if="
+                                                        token.hub.id ===
+                                                        $page.props.auth.user
+                                                            .hub_id
+                                                    "
+                                                >
+                                                    Selected
+                                                </template>
+                                                <template v-else>
+                                                    Select
+                                                </template>
+                                                <CheckIcon class="size-5" />
+                                            </SecondaryButton>
+
+                                            <button
+                                                @click="
+                                                    () => deleteToken(token)
+                                                "
+                                                class="inline-flex items-center rounded-lg p-0.5 text-center text-sm font-medium text-gray-500 hover:text-gray-800 focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
+                                                type="button"
+                                            >
+                                                <TrashIcon class="size-5" />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             </tbody>

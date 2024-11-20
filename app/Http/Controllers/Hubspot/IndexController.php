@@ -11,6 +11,7 @@ final class IndexController
     public function __invoke(Request $request): Response
     {
         $tokens = $request->user()->hubspotTokens;
+        $tokens->load('hub');
 
         return Inertia::render('Hubspot/Index', [
             'tokens' => $tokens,

@@ -20,14 +20,13 @@ class HubspotToken extends Model
      */
     protected $fillable = [
         'user_id',
+        'hub_id',
 
         'token',
         'refresh_token',
 
         'hubspot_user_id',
         'email',
-        'hub_id',
-        'hub_domain',
     ];
 
     /**
@@ -47,6 +46,16 @@ class HubspotToken extends Model
     {
         return $this->belongsTo(
             related: User::class,
+        );
+    }
+
+    /**
+     * Get the hub that owns the HubspotToken
+     */
+    public function hub(): BelongsTo
+    {
+        return $this->belongsTo(
+            related: Hub::class,
         );
     }
 

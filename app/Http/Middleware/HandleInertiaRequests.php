@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\AppType;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -29,6 +30,8 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+
         $plans = [];
         foreach (config('cashier_plans.plans') as $key => $plan) {
             $plans[$key] = [
@@ -39,7 +42,19 @@ class HandleInertiaRequests extends Middleware
             ];
         }
 
-        $subscription = $request->user()?->subscription('default');
+        $subscription = $user?->selectedHub?->subscription('default');
+
+        $planDetails = [
+            'enabled_apps' => [
+                AppType::CONTACT_CLUSTER,
+            ],
+
+            'maximum_locations' => 100,
+        ];
+
+        if ($subscription !== null) {
+            $planDetails['enabled_apps'][] = AppType::BIRTHDAY_REMINDER;
+        }
 
         return [
             ...parent::share($request),
@@ -49,9 +64,10 @@ class HandleInertiaRequests extends Middleware
             ],
 
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
                 'subscription' => $subscription,
                 'on_grace_period' => $subscription?->onGracePeriod(),
+                'plan_details' => $planDetails,
             ],
 
             'flash' => [

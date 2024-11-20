@@ -13,9 +13,10 @@ final class UpdateController
      */
     public function __invoke(UpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
-        $request->user()->save();
+        $hub = $request->user()->selectedHub;
+        $hub->fill($request->validated());
+        $hub->save();
 
-        return Redirect::route('profile.edit');
+        return Redirect::route('billing.index');
     }
 }

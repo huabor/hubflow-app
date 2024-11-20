@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\App;
 
+use App\Enums\AppType;
 use App\Models\HubspotToken;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Foundation\Http\FormRequest;
@@ -22,7 +23,7 @@ class StoreRequest extends FormRequest
             'type' => [
                 'required',
                 'string',
-                Rule::in(collect(config('app_types'))->pluck('type')->values()),
+                Rule::in(collect(AppType::TYPE_DEFINITION)->pluck('type')->values()),
             ],
 
             'hubspot_token_id' => [

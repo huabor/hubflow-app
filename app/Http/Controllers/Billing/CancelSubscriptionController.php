@@ -13,8 +13,9 @@ final class CancelSubscriptionController
     public function __invoke(Request $request): RedirectResponse
     {
         $user = $request->user();
+        $hub = $user->selectedHub;
 
-        $user->subscription('default')->cancel();
+        $hub->subscription('default')->cancel();
 
         return to_route('billing.choose-subscription')->with('notification', [
             'type' => 'success',

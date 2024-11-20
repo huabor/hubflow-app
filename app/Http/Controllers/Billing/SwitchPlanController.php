@@ -13,8 +13,9 @@ final class SwitchPlanController
     public function __invoke(Request $request, string $plan): RedirectResponse
     {
         $user = $request->user();
+        $hub = $user->selectedHub;
 
-        $user->subscription('default')->swap($plan);
+        $hub->subscription('default')->swap($plan);
 
         return to_route('billing.choose-subscription')->with('notification', [
             'type' => 'success',

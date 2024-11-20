@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Third Party Services
@@ -40,6 +39,7 @@ return [
 
         'client_id' => env('HUBSPOT_CLIENT_ID'),
         'client_secret' => env('HUBSPOT_CLIENT_SECRET'),
-        'redirect' => env('HUBSPOT_REDIRECT_URI'),
+        'redirect' => env('APP_URL').'/oauth/hubspot/callback',
+        // 'redirect' => url('/oauth/hubspot/callback', secure:true),
     ],
 ];

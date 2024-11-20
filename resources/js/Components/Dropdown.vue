@@ -4,7 +4,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 const props = withDefaults(
     defineProps<{
         align?: 'left' | 'right';
-        width?: '48';
+        width?: '48'|'52'|'56';
         contentClasses?: string;
     }>(),
     {
@@ -20,12 +20,16 @@ const closeOnEscape = (e: KeyboardEvent) => {
     }
 };
 
-onMounted(() => document.addEventListener('keydown', closeOnEscape));
+onMounted(() => {
+    document.addEventListener('keydown', closeOnEscape);
+});
 onUnmounted(() => document.removeEventListener('keydown', closeOnEscape));
 
 const widthClass = computed(() => {
     return {
         48: 'w-48',
+        52: 'w-52',
+        56: 'w-56',
     }[props.width.toString()];
 });
 
@@ -65,13 +69,13 @@ const open = ref(false);
         >
             <div
                 v-show="open"
-                class="absolute z-[2000] mt-2 rounded-md shadow-lg"
+                class="absolute z-[2000] mt-2 rounded-lg shadow-lg"
                 :class="[widthClass, alignmentClasses]"
                 style="display: none"
                 @click="open = false"
             >
                 <div
-                    class="rounded-md ring-1 ring-black ring-opacity-5"
+                    class="divide-y divide-gray-100 rounded-lg ring-1 ring-black ring-opacity-5 dark:divide-gray-600"
                     :class="contentClasses"
                 >
                     <slot name="content" />
