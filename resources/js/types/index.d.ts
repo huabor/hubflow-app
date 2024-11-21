@@ -52,6 +52,7 @@ export type PageProps<
 
     flash?: {
         action?: string;
+        data?: any;
         notification?: {
             type: string;
             message: string;
@@ -82,18 +83,15 @@ export interface HubspotToken {
     email: string;
 }
 
-export interface HubspotCompany {
+export interface HubspotObject {
     id: number;
 
     hub_id: string;
     hubspot_id: string;
 
-    name: string;
-
-    address: string;
-    city: string;
-    zip: string;
-    country: string;
+    properties: {
+        [key: string]: any;
+    };
 
     coordinates: {
         x: number;
@@ -112,20 +110,41 @@ export interface AvailableApp {
 }
 
 export interface App {
-    id: string;
+    id: number;
 
     hubspot_token?: HubspotToken;
     user?: User;
 
     type: AppType;
     name: string;
-    configuration: object | ContactClusterConfiguration[];
+    configuration: object;
 }
 
-export type ContactClusterConfiguration = {
+export interface ContactCluster {
+    id: number;
+    type: number;
     name: string;
-    updated_at?: string;
-    filter: object[];
+    color: string;
+    filter: HubspotSearchFilter[];
+
+    refreshed_at: string;
+
+    objects: HubspotObject[];
+    objects_count?: number;
+    resolved_objects: HubspotObject[];
+    resolved_objects_count?: number;
+}
+
+export interface HubspotSearchFilter {
+    propertyName: string;
+    operator: string;
+    value: string;
+}
+
+export interface HubspotObjectType {
+    type: number;
+    name: string;
+    slug: string;
 }
 
 export interface Order {

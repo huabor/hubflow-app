@@ -6,7 +6,6 @@ use App\Traits\Models\StaticTableName;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class HubspotToken extends Model
 {
@@ -56,16 +55,6 @@ class HubspotToken extends Model
     {
         return $this->belongsTo(
             related: Hub::class,
-        );
-    }
-
-    /**
-     * Get all of the Hubspot Companies for the HubspotToken
-     */
-    public function hubspotCompanies(): HasMany
-    {
-        return $this->hasMany(
-            related: HubspotCompany::class,
         );
     }
 }

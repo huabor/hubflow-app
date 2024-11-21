@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, Ref, ref } from 'vue';
+import {
+    ArrowDownIcon,
+    ArrowUpIcon,
+    XMarkIcon,
+} from '@heroicons/vue/24/outline';
+import { computed, onMounted, Ref, ref, watch } from 'vue';
 
 import L, {
     Circle,
@@ -11,33 +16,34 @@ import L, {
 } from 'leaflet';
 // @ts-ignore
 import 'leaflet-routing-machine';
+// @ts-ignore
 import { MarkerClusterGroup } from 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet/dist/leaflet.css';
 //https://leaflet.github.io/Leaflet.heat/dist/leaflet-heat.js
-import { App, HubspotCompany } from '@/types';
-import {
-    ArrowDownIcon,
-    ArrowUpIcon,
-    XMarkIcon,
-} from '@heroicons/vue/24/outline';
+
+import { App, HubspotObject } from '@/types';
+import { ContactCluster } from '../../../../types/index';
 import Popup from './Popup.vue';
+
+const map: Ref<any> = ref();
+const markers: Ref<MarkerClusterGroup> = ref();
 
 const props = defineProps<{
     app: App;
-    company?: HubspotCompany;
-    companies: HubspotCompany[];
+    contactCluster: ContactCluster[];
+    object?: HubspotObject;
 }>();
 
 const showTeleportContent = ref(false);
-const selectedCompany: Ref<HubspotCompany | undefined> = ref(undefined);
-const selectedCompanyIsWaypoint = computed(
+const selectedObject: Ref<HubspotObject | undefined> = ref(undefined);
+const selectedObjectIsWaypoint = computed(
     () =>
-        waypoints.value.findIndex((c) => c.id === selectedCompany.value?.id) >
+        waypoints.value.findIndex((c) => c.id === selectedObject.value?.id) >
         -1,
 );
 
-const waypoints: Ref<HubspotCompany[]> = ref([]);
+const waypoints: Ref<HubspotObject[]> = ref([]);
 const routeSummary: Ref<{
     distance: number;
     h: number;
@@ -46,7 +52,6 @@ const routeSummary: Ref<{
 const routingControl: Ref<Routing.Control | null> = ref(null);
 
 onMounted(async () => {
-    return 
     const appLink = route('app.show', {
         type: props.app.type,
     });
@@ -54,9 +59,9 @@ onMounted(async () => {
     let lat = 46.6995607;
     let lng = 11.6331693;
     let circle;
-    if (props.company?.coordinates) {
-        lat = props.company.coordinates.x;
-        lng = props.company.coordinates.y;
+    if (props.object?.coordinates) {
+        lat = props.object.coordinates.x;
+        lng = props.object.coordinates.y;
 
         circle = new Circle(new LatLng(lat, lng), {
             radius: 10000,
@@ -66,15 +71,15 @@ onMounted(async () => {
         });
     }
 
-    const map = L.map('map', {
+    map.value = L.map('map', {
         center: L.latLng(lat, lng),
         zoom: 10,
     });
-    map.attributionControl.addAttribution(
+    map.value.attributionControl.addAttribution(
         `Powered by <a href="${appLink}" target="_blank">Hubflow Apps</a>`,
     );
 
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {}).addTo(map);
+    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {}).addTo(map.value);
 
     const plan = new L.Routing.Plan([], {
         draggableWaypoints: false,
@@ -111,7 +116,7 @@ onMounted(async () => {
         addWaypoints: false,
         show: false,
         plan: plan,
-    }).addTo(map);
+    }).addTo(map.value);
 
     routingControl.value.on('routesfound', (e: Routing.RoutingResultEvent) => {
         if (e.routes[0].summary !== undefined) {
@@ -127,7 +132,7 @@ onMounted(async () => {
     });
 
     if (circle !== undefined) {
-        circle.addTo(map);
+        circle.addTo(map.value);
     }
 
     const iconDivDefault = divIcon({
@@ -136,48 +141,75 @@ onMounted(async () => {
         iconSize: [12, 12],
     });
     Marker.prototype.options.icon = iconDivDefault;
-
-    const iconDiv = divIcon({
-        className: 'bg-primary-400 border-2 border-primary-600 rounded-full',
-        iconAnchor: [8, 8],
-        iconSize: [16, 16],
-    });
-
-    const markers = new MarkerClusterGroup();
-
-    props.companies.forEach((company) => {
-        let markerOptions: MarkerOptions & {
-            id: number;
-        } = {
-            id: company.id,
-            title: company.name,
-        };
-
-        if (company.id === props.company?.id) {
-            markerOptions.icon = iconDiv;
-        }
-
-        const marker = L.marker(
-            [company.coordinates.x, company.coordinates.y],
-            markerOptions,
-        );
-
-        marker.on('click', (e: L.LeafletMouseEvent) =>
-            bindMarkerPopup(marker, e),
-        );
-
-        markers.addLayer(marker);
-    });
-
-    map.addLayer(markers);
 });
+
+watch(
+    () => props.contactCluster,
+    () => {
+        updateMap();
+    },
+    { deep: true },
+);
+
+const updateMap = () => {
+    if (map.value === undefined) return;
+
+    if (markers.value !== undefined) map.value.removeLayer(markers.value);
+
+    // const markers = new MarkerClusterGroup();
+    markers.value = new MarkerClusterGroup();
+    props.contactCluster.forEach((cluster) => {
+        const markerHtmlStyles = `border: 2px solid ${cluster.color};background-color: ${cluster.color}B3;`;
+
+        cluster.resolved_objects.forEach((object) => {
+            let markerOptions: MarkerOptions & {
+                id: number;
+            } = {
+                id: object.id,
+                title: object.properties.name,
+            };
+
+            if (object.id === props.object?.id) {
+                markerOptions.icon = divIcon({
+                    html: `<div style="${markerHtmlStyles}" class="h-full w-full rounded-full"></div>`,
+                    className: `rounded-full`,
+                    iconAnchor: [8, 8],
+                    iconSize: [16, 16],
+                });
+            } else {
+                markerOptions.icon = divIcon({
+                    html: `<div style="${markerHtmlStyles}" class="h-full w-full rounded-full"></div>`,
+                    className: `rounded-full`,
+                    iconAnchor: [6, 6],
+                    iconSize: [12, 12],
+                });
+            }
+
+            const marker = L.marker(
+                [object.coordinates.x, object.coordinates.y],
+                markerOptions,
+            );
+
+            marker.on('click', (e: L.LeafletMouseEvent) =>
+                bindMarkerPopup(marker, e),
+            );
+
+            markers.value.addLayer(marker);
+        });
+    });
+
+    map.value.addLayer(markers.value);
+};
 
 const bindMarkerPopup = (marker: L.Marker, e: L.LeafletMouseEvent) => {
     marker.unbindPopup();
 
     setTimeout(() => {
-        const companyId = e.sourceTarget.options.id;
-        selectedCompany.value = props.companies.find((c) => c.id === companyId);
+        const objectId = e.sourceTarget.options.id;
+
+        selectedObject.value = props.contactCluster
+            .flatMap((cc) => cc.resolved_objects)
+            .find((o) => o.id === objectId);
 
         marker.bindPopup('', {
             className: 'w-64 h-80',
@@ -198,7 +230,7 @@ const bindMarkerPopup = (marker: L.Marker, e: L.LeafletMouseEvent) => {
     }, 100);
 };
 
-const addWaypoint = (company: HubspotCompany) => {
+const addWaypoint = (company: HubspotObject) => {
     waypoints.value.push(company);
 
     setWaypoints();
@@ -211,7 +243,7 @@ const moveWaypoint = (from: number, to: number) => {
     setWaypoints();
 };
 
-const removeWaypoint = (company: HubspotCompany) => {
+const removeWaypoint = (company: HubspotObject) => {
     const index = waypoints.value.findIndex((c) => c.id === company.id);
 
     if (index === -1) return;
@@ -235,14 +267,14 @@ const getWaypointChar = (number: number) => String.fromCharCode(number + 65);
 </script>
 
 <template>
-    <div id="map" class=" rounded-xl h-full w-full bg-yellow-400"></div>
+    <div id="map" class="h-full w-full rounded-xl bg-yellow-400"></div>
 
     <div ref="popupcard" id="popupcard" v-if="showTeleportContent">
         <Teleport :to="'.leaflet-popup-content'">
             <Popup
-                v-if="selectedCompany !== undefined"
-                :company="selectedCompany"
-                :is-waypoint="selectedCompanyIsWaypoint"
+                v-if="selectedObject !== undefined"
+                :object="selectedObject"
+                :is-waypoint="selectedObjectIsWaypoint"
                 @waypoint:add="addWaypoint"
                 @waypoint:remove="removeWaypoint"
             />
@@ -270,14 +302,14 @@ const getWaypointChar = (number: number) => String.fromCharCode(number + 65);
         >
             <span>
                 {{ getWaypointChar(i) }} -
-                {{ waypoint.name }}
+                {{ waypoint.properties.name }}
             </span>
 
             <div class="grid grid-cols-3 gap-1">
                 <button
                     v-if="i > 0"
                     @click="moveWaypoint(i, i - 1)"
-                    class="col-start-1 inline-flex items-center rounded-lg p-px text-center text-sm font-medium text-gray-500 hover:text-gray-800 focus:outline-none disabled:opacity-60"
+                    class="col-start-1 inline-flex items-center rounded-xl p-px text-center text-sm font-medium text-gray-500 hover:text-gray-800 focus:outline-none disabled:opacity-60"
                 >
                     <ArrowUpIcon class="size-5" />
                 </button>
@@ -285,14 +317,14 @@ const getWaypointChar = (number: number) => String.fromCharCode(number + 65);
                 <button
                     v-if="i + 1 < waypoints.length"
                     @click="moveWaypoint(i, i + 1)"
-                    class="col-start-2 inline-flex items-center rounded-lg p-px text-center text-sm font-medium text-gray-500 hover:text-gray-800 focus:outline-none disabled:opacity-60"
+                    class="col-start-2 inline-flex items-center rounded-xl p-px text-center text-sm font-medium text-gray-500 hover:text-gray-800 focus:outline-none disabled:opacity-60"
                 >
                     <ArrowDownIcon class="size-5" />
                 </button>
 
                 <button
                     @click="removeWaypoint(waypoint)"
-                    class="col-start-3 inline-flex items-center rounded-lg p-px text-center text-sm font-medium text-gray-500 hover:text-gray-800 focus:outline-none disabled:opacity-60"
+                    class="col-start-3 inline-flex items-center rounded-xl p-px text-center text-sm font-medium text-gray-500 hover:text-gray-800 focus:outline-none disabled:opacity-60"
                 >
                     <XMarkIcon class="size-5" />
                 </button>

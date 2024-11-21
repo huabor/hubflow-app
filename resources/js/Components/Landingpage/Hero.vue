@@ -27,7 +27,7 @@ import { Link } from '@inertiajs/vue3';
                     <Link
                         v-if="$page.props.auth.user"
                         :href="route('app.index')"
-                        class="flex items-center space-x-2 rounded-lg bg-white px-6 py-2 text-base font-medium text-gray-800 duration-300 ease-in-out hover:text-primary-400 hover:shadow-md"
+                        class="flex items-center space-x-2 rounded-xl bg-white px-6 py-2 text-base font-medium text-gray-800 duration-300 ease-in-out hover:text-primary-400 hover:shadow-md"
                     >
                         <span>Apps</span>
                         <Squares2X2Icon class="size-6" />
@@ -36,7 +36,7 @@ import { Link } from '@inertiajs/vue3';
                     <Link
                         v-else
                         :href="route('signin')"
-                        class="flex items-center space-x-2 rounded-lg bg-white px-6 py-2 text-base font-medium text-gray-800 duration-300 ease-in-out hover:text-primary-400 hover:shadow-md"
+                        class="flex items-center space-x-2 rounded-xl bg-white px-6 py-2 text-base font-medium text-gray-800 duration-300 ease-in-out hover:text-primary-400 hover:shadow-md"
                     >
                         Get Started
                     </Link>

@@ -46,7 +46,7 @@ const isTop = computed(() => y.value === 0);
                     <template v-else>
                         <Link
                             :href="route('signin')"
-                            class="rounded-lg px-6 py-2 text-base font-medium duration-300 ease-in-out"
+                            class="rounded-xl px-6 py-2 text-base font-medium duration-300 ease-in-out"
                             :class="{
                                 'bg-white bg-opacity-20 hover:bg-opacity-100 hover:text-primary-400':
                                     isTop,

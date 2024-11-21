@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, router, useForm, usePage } from '@inertiajs/vue3';
+import { Head, router, useForm } from '@inertiajs/vue3';
 import { onMounted, onUpdated, Ref, ref } from 'vue';
 
 import PrimaryButton from '@/Components/PrimaryButton.vue';
@@ -41,8 +41,7 @@ onMounted(() => {
                 const data = event.data;
 
                 if (data.closeModal === true) {
-                    console.log(usePage().props.auth.user.hub_id);
-                    router.reload({ only: ['auth', 'tokens'] });
+                    router.visit(route('app.index'));
                 }
 
                 if (openedWindow.value !== null) {
@@ -56,7 +55,9 @@ onMounted(() => {
 
 const openConnectModal = () => {
     openedWindow.value = window.open(
-        route('oauth.hubspot.redirect'),
+        route('oauth.hubspot.redirect', {
+            state: 'popup',
+        }),
         'Hubflow Apps - Connect',
         'resizeable,scrollbars,height=800,width=768',
     );
@@ -92,7 +93,7 @@ const deleteToken = (token: HubspotToken) => {
         <div class="py-12">
             <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
                 <div
-                    class="bg-white p-4 shadow sm:rounded-lg sm:p-8 dark:bg-gray-800"
+                    class="bg-white p-4 shadow sm:rounded-xl sm:p-8 dark:bg-gray-800"
                 >
                     <div class="mb-4 flex items-center justify-between">
                         <h3
@@ -181,7 +182,7 @@ const deleteToken = (token: HubspotToken) => {
                                                 @click="
                                                     () => deleteToken(token)
                                                 "
-                                                class="inline-flex items-center rounded-lg p-0.5 text-center text-sm font-medium text-gray-500 hover:text-gray-800 focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
+                                                class="inline-flex items-center rounded-xl p-0.5 text-center text-sm font-medium text-gray-500 hover:text-gray-800 focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
                                                 type="button"
                                             >
                                                 <TrashIcon class="size-5" />

@@ -37,17 +37,6 @@ class User extends Authenticatable
         'firstname',
         'lastname',
         'email',
-        'password',
-    ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
     ];
 
     /**
@@ -67,19 +56,6 @@ class User extends Authenticatable
     protected $appends = [
         'avatar',
     ];
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
 
     /**
      * Get the selected hub for the User
@@ -128,10 +104,10 @@ class User extends Authenticatable
         $hash = md5(strtolower(trim($this->email)));
         $firstname = $this->firstname[0] ?? '';
         $lastname = $this->lastname[0] ?? '';
-        $fallback =urlencode("https://ui-avatars.com/api/$firstname$lastname/128/5E93D2/FFFFFF");
+        $fallback = urlencode("https://ui-avatars.com/api/$firstname$lastname/128/5E93D2/FFFFFF");
 
         return Attribute::make(
-            get: fn() => "https://www.gravatar.com/avatar/$hash?d=$fallback",
+            get: fn () => "https://www.gravatar.com/avatar/$hash?d=$fallback",
         );
     }
 }

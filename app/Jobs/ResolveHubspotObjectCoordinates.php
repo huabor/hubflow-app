@@ -2,13 +2,14 @@
 
 namespace App\Jobs;
 
-use App\Models\HubspotCompany;
+use App\Models\Hub;
+use App\Models\HubspotObject;
 use Clickbar\Magellan\Data\Geometries\Point;
 use Geocoder\Query\GeocodeQuery;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
-class UpdateCompanyCoordinates implements ShouldQueue
+class ResolveHubspotObjectCoordinates implements ShouldQueue
 {
     use Queueable;
 
@@ -16,7 +17,8 @@ class UpdateCompanyCoordinates implements ShouldQueue
      * Create a new job instance.
      */
     public function __construct(
-        protected HubspotCompany $company
+        protected Hub $hub,
+        protected HubspotObject $hubspotObject,
     ) {}
 
     /**
@@ -24,8 +26,21 @@ class UpdateCompanyCoordinates implements ShouldQueue
      */
     public function handle(): void
     {
-        $company = $this->company;
-        $address = "$company->address, $company->city, $company->zip - $company->country";
+        $resolvedObjectLocations = $this->hub->objects()
+            ->whereNotNull('location')
+            ->count();
+
+        if ($this->hub->subscription() === null) {
+            $limit = 20;
+        }
+
+        // if ($resolvedObjectLocations >= $limit) {
+        //     $this->fail('Maximum numbers of resolved object locations reached.');
+        //     return;
+        // }
+
+        $properties = $this->hubspotObject->properties;
+        $address = "$properties->address, $properties->city, $properties->zip - $properties->country";
 
         $userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36';
         $referrer = 'http://localhost';
@@ -35,11 +50,11 @@ class UpdateCompanyCoordinates implements ShouldQueue
 
         $result = $geocoder->geocodeQuery(GeocodeQuery::create($address));
         if (count($result) > 0) {
-            $company->location = Point::make(
+            $this->hubspotObject->location = Point::make(
                 x: $result->first()->getCoordinates()->getLatitude(),
                 y: $result->first()->getCoordinates()->getLongitude(),
             );
-            $company->save();
+            $this->hubspotObject->save();
         }
     }
 }

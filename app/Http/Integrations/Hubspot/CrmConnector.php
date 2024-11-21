@@ -2,8 +2,13 @@
 
 namespace App\Http\Integrations\Hubspot;
 
+use App\Models\HubspotToken;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Log;
+use Laravel\Socialite\Facades\Socialite;
 use Saloon\Contracts\Body\HasBody;
+use Saloon\Exceptions\Request\FatalRequestException;
+use Saloon\Exceptions\Request\RequestException;
 use Saloon\Helpers\OAuth2\OAuthConfig;
 use Saloon\Http\Auth\TokenAuthenticator;
 use Saloon\Http\Connector;
@@ -20,12 +25,17 @@ use Saloon\Traits\Plugins\AcceptsJson;
 
 class CrmConnector extends Connector implements HasPagination
 {
+    public ?int $tries = 3;
+
+    public ?bool $throwOnMaxTries = false;
+
     use AcceptsJson;
     use AuthorizationCodeGrant;
     use HasRateLimits;
 
     public function __construct(
-        public readonly string $token
+        public readonly string $token,
+        public readonly ?HubspotToken $hubspotToken = null,
     ) {}
 
     /**
@@ -120,6 +130,26 @@ class CrmConnector extends Connector implements HasPagination
                 return $request;
             }
         };
+    }
+
+    public function handleRetry(FatalRequestException|RequestException $exception, Request $request): bool
+    {
+        if ($exception instanceof RequestException && $exception->getResponse()->status() === 401 && $this->hubspotToken !== null) {
+            /** @var \SocialiteProviders\HubSpot $provider */
+            $provider = Socialite::driver('hubspot');
+            try {
+                $refreshToken = $provider->refreshToken($this->hubspotToken->refresh_token);
+            } catch (ClientException $exception) {
+                return true;
+            }
+
+            $this->hubspotToken->token = $refreshToken['access_token'];
+            $this->hubspotToken->save();
+
+            $request->authenticate(new TokenAuthenticator($this->hubspotToken->token));
+        }
+
+        return true;
     }
 
     protected function resolveLimits(): array

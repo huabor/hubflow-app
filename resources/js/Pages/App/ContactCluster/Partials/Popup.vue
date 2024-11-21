@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { HubspotCompany } from '@/types';
+import { HubspotObject } from '@/types';
 import {
     ArrowTopRightOnSquareIcon,
     BuildingOfficeIcon,
@@ -10,7 +10,7 @@ import {
 const emit = defineEmits(['waypoint:add', 'waypoint:remove']);
 
 defineProps<{
-    company: HubspotCompany;
+    object: HubspotObject;
     isWaypoint: boolean;
 }>();
 </script>
@@ -22,11 +22,11 @@ defineProps<{
         >
             <div class="flex items-center justify-between gap-2">
                 <BuildingOfficeIcon class="size-5" />
-                <span class="font-semibold">{{ company.name }}</span>
+                <span class="font-semibold">{{ object.properties.name }}</span>
             </div>
 
             <a
-                :href="company.deep_link"
+                :href="object.deep_link"
                 class="!text-primary-400 hover:!text-primary-600"
                 target="_blank"
                 title="Open in HubSpot"
@@ -39,34 +39,34 @@ defineProps<{
             <div class="space-y-px p-1.5">
                 <span
                     class="inline-block rounded p-px px-0.5"
-                    :class="{ 'bg-yellow-400': !company.address }"
+                    :class="{ 'bg-yellow-400': !object.properties.address }"
                 >
-                    {{ company.address ?? 'NULL' }}
+                    {{ object.properties.address ?? 'NULL' }}
                 </span>
 
                 <br />
 
                 <span
                     class="inline-block rounded p-px px-0.5"
-                    :class="{ 'bg-yellow-400': !company.city }"
+                    :class="{ 'bg-yellow-400': !object.properties.city }"
                 >
-                    {{ company.city ?? 'NULL' }}
+                    {{ object.properties.city ?? 'NULL' }}
                 </span>
                 -
                 <span
                     class="inline-block rounded p-px px-0.5"
-                    :class="{ 'bg-yellow-400': !company.zip }"
+                    :class="{ 'bg-yellow-400': !object.properties.zip }"
                 >
-                    {{ company.zip ?? 'NULL' }}
+                    {{ object.properties.zip ?? 'NULL' }}
                 </span>
 
                 <br />
 
                 <span
                     class="inline-block rounded p-px px-0.5"
-                    :class="{ 'bg-yellow-400': !company.country }"
+                    :class="{ 'bg-yellow-400': !object.properties.country }"
                 >
-                    {{ company.country ?? 'NULL' }}
+                    {{ object.properties.country ?? 'NULL' }}
                 </span>
             </div>
 
@@ -74,7 +74,7 @@ defineProps<{
                 <h3 class="px-2 text-xs shadow-sm">Actions</h3>
                 <div class="">
                     <a
-                        :href="company.deep_link"
+                        :href="object.deep_link"
                         class="flex items-center justify-between border-b px-2 py-3 !text-primary-400 hover:bg-gray-50 hover:!text-primary-600"
                         target="_blank"
                         title="Open in HubSpot"
@@ -86,7 +86,7 @@ defineProps<{
 
                     <button
                         v-if="isWaypoint"
-                        @click="emit('waypoint:remove', company)"
+                        @click="emit('waypoint:remove', object)"
                         class="flex w-full items-center justify-between border-b px-2 py-3 !text-primary-400 hover:bg-gray-50 hover:!text-primary-600"
                     >
                         Remove Waypoint
@@ -96,7 +96,7 @@ defineProps<{
 
                     <button
                         v-else
-                        @click="emit('waypoint:add', company)"
+                        @click="emit('waypoint:add', object)"
                         class="flex w-full items-center justify-between border-b px-2 py-3 !text-primary-400 hover:bg-gray-50 hover:!text-primary-600"
                     >
                         Add Waypoint

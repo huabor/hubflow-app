@@ -20,32 +20,27 @@ const planDetails = usePage().props.auth.plan_details;
     <AuthenticatedLayout>
         <div class="py-12">
             <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-                <div
-                    class="bg-white p-4 shadow sm:rounded-lg sm:p-8 dark:bg-gray-800"
-                >
-                    <div class="grid grid-cols-4 gap-4">
-                        <template v-for="app in available_apps" :key="app.type">
-                            <Link
-                                v-if="
-                                    planDetails.enabled_apps.includes(app.type)
-                                "
-                                :href="route('app.show', { type: app.type })"
-                                class="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-800 bg-gray-100 p-8 text-gray-800 shadow-lg hover:border-primary-400 hover:text-primary-400 dark:border-gray-400 dark:bg-gray-600 dark:text-gray-400"
-                            >
-                                <AppIcon :type="app.type" />
+                <div class="grid grid-cols-4 gap-8">
+                    <template v-for="app in available_apps" :key="app.type">
+                        <Link
+                            v-if="planDetails.enabled_apps.includes(app.type)"
+                            :href="route('app.show', { type: app.type })"
+                            class="flex flex-col items-center justify-center gap-2 rounded-xl border border-primary-400 bg-white p-8 text-primary-400 shadow-xl transition-all hover:bg-primary-400 hover:text-white dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-primary-600"
+                        >
+                            <AppIcon :type="app.type" :size="12" />
 
-                                <span>{{ app.name }}</span>
-                            </Link>
-                            <div
-                                v-else
-                                class="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-800 bg-gray-100 p-8 text-gray-800 opacity-70 shadow-lg dark:border-gray-400 dark:bg-gray-600 dark:text-gray-400"
-                            >
-                                <AppIcon :type="app.type" />
+                            <span class="text-xl">{{ app.name }}</span>
+                        </Link>
 
-                                <span>{{ app.name }}</span>
-                            </div>
-                        </template>
-                    </div>
+                        <div
+                            v-else
+                            class="flex flex-col items-center justify-center gap-2 rounded-xl border border-primary-400 bg-white p-8 text-primary-400 opacity-70 shadow-xl dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                        >
+                            <AppIcon :type="app.type" :size="12" />
+
+                            <span>{{ app.name }}</span>
+                        </div>
+                    </template>
                 </div>
             </div>
         </div>

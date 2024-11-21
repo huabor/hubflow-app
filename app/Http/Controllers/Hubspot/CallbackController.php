@@ -11,6 +11,7 @@ use App\Models\Hub;
 use App\Models\HubspotToken;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -19,9 +20,11 @@ final class CallbackController
     /**
      * Handle the incoming request.
      */
-    public function __invoke(): RedirectResponse
+    public function __invoke(Request $request): RedirectResponse
     {
-        $hubspotUser = Socialite::driver('hubspot')->user();
+        /** @var \SocialiteProviders\HubSpot $provider */
+        $provider = Socialite::driver('hubspot');
+        $hubspotUser = $provider->stateless()->user();
 
         $hubspotCrmConnector = new CrmConnector(
             token: $hubspotUser->token,
@@ -32,6 +35,7 @@ final class CallbackController
         );
         $ownerResponse = $hubspotCrmConnector->send($getOwner);
         $owner = $ownerResponse->json();
+
         $firstname = $owner['firstName'];
         $lastname = $owner['lastName'];
 
@@ -91,6 +95,10 @@ final class CallbackController
 
         Auth::login($user);
 
-        return to_route('hubspot.token.index')->with('action', 'close-popup');
+        if ($request->get('state') === 'popup') {
+            return to_route('hubspot.token.index')->with('action', 'close-popup');
+        } else {
+            return to_route('app.index');
+        }
     }
 }

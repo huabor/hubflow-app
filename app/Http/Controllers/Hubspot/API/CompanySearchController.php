@@ -3,16 +3,19 @@
 namespace App\Http\Controllers\Hubspot\API;
 
 use App\Http\Integrations\Hubspot\CrmConnector;
-use App\Http\Integrations\Hubspot\Requests\Property\ReadAllProperties;
+use App\Http\Integrations\Hubspot\Requests\SearchCompanies;
+use App\Http\Requests\Hubspot\SearchFilterRequest;
 use App\Models\HubspotToken;
 use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 
-final class CompanyPropertyController
+final class CompanySearchController
 {
-    public function __invoke(Request $request): JsonResponse
+    public function __invoke(SearchFilterRequest $request): JsonResponse|RedirectResponse
     {
+        $filter = $request->validated('filter');
+
         $user = $request->user();
         $hub = $user->selectedHub;
 
@@ -36,18 +39,24 @@ final class CompanyPropertyController
         );
 
         Debugbar::startMeasure('render', 'Get all company properties');
-        $readAllProperties = new ReadAllProperties(
-            hubId: $hub->id,
-            objectType: 'companies',
+        $searchCompanies = new SearchCompanies(
+            filter: $filter,
         );
-        if ($request->has('invalidate_cache')) {
-            $readAllProperties->invalidateCache();
+        $res = $hubspotCrmConnector->send($searchCompanies);
+
+        $response = [];
+        if ($res->status() === 200) {
+            $response = [
+                'count' => $res->json('total'),
+            ];
         }
-        $propertyResponse = $hubspotCrmConnector->send($readAllProperties);
-        $response = $propertyResponse->collect('results');
         Debugbar::stopMeasure('render');
 
         Debugbar::startMeasure('render', 'Send response');
+
+        return back()->with([
+            'data' => $response,
+        ]);
 
         return response()->json($response);
         Debugbar::stopMeasure('render');

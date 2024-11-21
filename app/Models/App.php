@@ -7,6 +7,7 @@ use App\Traits\Models\StaticTableName;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class App extends Model
 {
@@ -41,12 +42,12 @@ class App extends Model
     }
 
     /**
-     * Get the user that owns the Apps
+     * Get the hub that owns the Apps
      */
-    public function user(): BelongsTo
+    public function hub(): BelongsTo
     {
         return $this->belongsTo(
-            related: User::class
+            related: Hub::class
         );
     }
 
@@ -57,6 +58,16 @@ class App extends Model
     {
         return $this->belongsTo(
             related: HubspotToken::class
+        );
+    }
+
+    /**
+     * Get all of the contactCluster for the App
+     */
+    public function contactCluster(): HasMany
+    {
+        return $this->hasMany(
+            related: ContactCluster::class,
         );
     }
 }

@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\App;
 
 use App\Enums\AppType;
+use App\Enums\Hubspot\ObjectType;
 use App\Models\App;
-use App\Models\HubspotCompany;
-use Illuminate\Database\Eloquent\Collection;
+use App\Models\HubspotObject;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -16,10 +17,16 @@ final class ShowController
     /**
      * Display the user's profile form.
      */
-    public function __invoke(Request $request, AppType $type): Response|RedirectResponse|Collection
+    public function __invoke(Request $request, AppType $type): Response|RedirectResponse
     {
+        $crmCard = $request->routeIs('crm-card.show');
+
         $user = $request->user();
         $hub = $user->selectedHub;
+
+        if ($crmCard) {
+            Auth::guard('web')->login($user);
+        }
 
         $appType = AppType::TYPE_DEFINITION[$type->value];
 
@@ -40,6 +47,7 @@ final class ShowController
         }
 
         $renderProps = [
+            'crmCard' => $crmCard,
             'app' => $app,
         ];
 
@@ -50,15 +58,22 @@ final class ShowController
         };
 
         if ($app->type === AppType::CONTACT_CLUSTER) {
-            if (isset($request->company)) {
-                $company = HubspotCompany::query()->find($request->company);
-                $company->coordinates = [
-                    'x' => $company->location->getX(),
-                    'y' => $company->location->getY(),
-                ];
+            $renderProps['object_types'] = ObjectType::ALL;
 
-                if ($company !== null) {
-                    $renderProps['company'] = $company;
+            $contactCluster = $app->contactCluster()
+                ->withCount([
+                    'objects',
+                    'resolvedObjects',
+                ])
+                ->get();
+
+            $renderProps['contact_cluster'] = $contactCluster;
+
+            if (isset($request->object)) {
+                $object = HubspotObject::query()->find($request->object);
+
+                if ($object !== null) {
+                    $renderProps['object'] = $object;
                 }
             }
         }

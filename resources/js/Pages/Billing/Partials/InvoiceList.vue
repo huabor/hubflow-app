@@ -62,7 +62,7 @@ defineProps<{
                                 :href="
                                     route('billing.download-invoice', order.id)
                                 "
-                                class="inline-flex items-center rounded-lg p-0.5 text-center text-sm font-medium text-gray-500 hover:text-gray-800 focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
+                                class="inline-flex items-center rounded-xl p-0.5 text-center text-sm font-medium text-gray-500 hover:text-gray-800 focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
                             >
                                 <DocumentArrowDownIcon class="size-5" />
                             </a>

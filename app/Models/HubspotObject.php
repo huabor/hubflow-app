@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
+use App\Enums\Hubspot\ObjectType;
 use App\Traits\Models\StaticTableName;
 use Clickbar\Magellan\Database\Eloquent\HasPostgisColumns;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class HubspotCompany extends Model
+class HubspotObject extends Model
 {
     use HasFactory;
     use HasPostgisColumns;
@@ -22,17 +22,27 @@ class HubspotCompany extends Model
      */
     protected $fillable = [
         'hub_id',
+
+        'type',
         'hubspot_id',
 
-        'name',
-
-        'address',
-        'city',
-        'zip',
-        'country',
+        'properties',
 
         'location',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'type' => ObjectType::class,
+            'properties' => 'object',
+        ];
+    }
 
     /**
      * The additional attributes that should allways be appended.
@@ -56,16 +66,6 @@ class HubspotCompany extends Model
         ],
     ];
 
-    /**
-     * Get the hubspotToken that owns the HubspotCompany
-     */
-    public function hubspotToken(): BelongsTo
-    {
-        return $this->belongsTo(
-            related: HubspotToken::class
-        );
-    }
-
     protected function coordinates(): Attribute
     {
         return Attribute::make(
@@ -79,7 +79,7 @@ class HubspotCompany extends Model
     protected function deepLink(): Attribute
     {
         return Attribute::make(
-            get: fn () => "https://app-eu1.hubspot.com/contacts/{$this->hubspotToken->hub_id}/record/0-2/{$this->hubspot_id}",
+            get: fn () => "https://app-eu1.hubspot.com/contacts/{$this->hub_id}/record/0-2/{$this->hubspot_id}",
         );
     }
 }

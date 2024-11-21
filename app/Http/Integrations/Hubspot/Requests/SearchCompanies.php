@@ -17,7 +17,9 @@ class SearchCompanies extends Request implements HasBody, Paginatable
      */
     protected Method $method = Method::POST;
 
-    public function __construct() {}
+    public function __construct(
+        protected array $filter
+    ) {}
 
     /**
      * The endpoint for the request
@@ -41,17 +43,18 @@ class SearchCompanies extends Request implements HasBody, Paginatable
             ],
             'filterGroups' => [
                 [
-                    'filters' => [
-                        [
-                            'operator' => 'HAS_PROPERTY',
-                            'propertyName' => 'address',
-                        ],
-                        [
-                            'operator' => 'CONTAINS_TOKEN',
-                            'propertyName' => 'zip',
-                            'value' => '39*',
-                        ],
-                    ],
+                    'filters' => $this->filter,
+                    // 'filters' => [
+                    //     [
+                    //         'operator' => 'HAS_PROPERTY',
+                    //         'propertyName' => 'address',
+                    //     ],
+                    //     [
+                    //         'operator' => 'CONTAINS_TOKEN',
+                    //         'propertyName' => 'zip',
+                    //         'value' => '39*',
+                    //     ],
+                    // ],
                 ],
             ],
             'sorts' => [

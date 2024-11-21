@@ -51,6 +51,16 @@ class Hub extends Model implements ProvidesInvoiceInformation
     }
 
     /**
+     * Get all of the objects for the Hub
+     */
+    public function objects(): HasMany
+    {
+        return $this->hasMany(
+            related: HubspotObject::class,
+        );
+    }
+
+    /**
      * Get the receiver information for the invoice.
      * Typically includes the name and some sort of (E-mail/physical) address.
      *
