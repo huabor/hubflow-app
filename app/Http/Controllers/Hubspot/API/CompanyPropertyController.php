@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Hubspot\API;
 use App\Http\Integrations\Hubspot\CrmConnector;
 use App\Http\Integrations\Hubspot\Requests\Property\ReadAllProperties;
 use App\Models\HubspotToken;
-use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -35,7 +34,6 @@ final class CompanyPropertyController
             hubspotToken: $token,
         );
 
-        Debugbar::startMeasure('render', 'Get all company properties');
         $readAllProperties = new ReadAllProperties(
             hubId: $hub->id,
             objectType: 'companies',
@@ -45,11 +43,7 @@ final class CompanyPropertyController
         }
         $propertyResponse = $hubspotCrmConnector->send($readAllProperties);
         $response = $propertyResponse->collect('results');
-        Debugbar::stopMeasure('render');
-
-        Debugbar::startMeasure('render', 'Send response');
 
         return response()->json($response);
-        Debugbar::stopMeasure('render');
     }
 }

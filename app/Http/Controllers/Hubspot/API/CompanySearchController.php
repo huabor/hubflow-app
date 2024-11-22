@@ -6,7 +6,6 @@ use App\Http\Integrations\Hubspot\CrmConnector;
 use App\Http\Integrations\Hubspot\Requests\SearchCompanies;
 use App\Http\Requests\Hubspot\SearchFilterRequest;
 use App\Models\HubspotToken;
-use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 
@@ -38,7 +37,6 @@ final class CompanySearchController
             hubspotToken: $token,
         );
 
-        Debugbar::startMeasure('render', 'Get all company properties');
         $searchCompanies = new SearchCompanies(
             filter: $filter,
         );
@@ -50,15 +48,9 @@ final class CompanySearchController
                 'count' => $res->json('total'),
             ];
         }
-        Debugbar::stopMeasure('render');
-
-        Debugbar::startMeasure('render', 'Send response');
 
         return back()->with([
             'data' => $response,
         ]);
-
-        return response()->json($response);
-        Debugbar::stopMeasure('render');
     }
 }

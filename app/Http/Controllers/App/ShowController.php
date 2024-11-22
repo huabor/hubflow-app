@@ -9,7 +9,6 @@ use App\Http\Integrations\Hubspot\Requests\Property\ReadAllProperties;
 use App\Models\App;
 use App\Models\HubspotObject;
 use App\Models\HubspotToken;
-use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -106,7 +105,6 @@ final class ShowController
                 hubspotToken: $token,
             );
 
-            Debugbar::startMeasure('render', 'Get all company properties');
             $readAllProperties = new ReadAllProperties(
                 hubId: $hub->id,
                 objectType: 'contacts',
@@ -115,7 +113,6 @@ final class ShowController
             $response = $propertyResponse->collect('results');
 
             $renderProps['contact_properties'] = $response;
-            Debugbar::stopMeasure('render');
         }
 
         if ($view === null) {
