@@ -17,10 +17,6 @@ final class CrmCardController
      */
     public function __invoke(Request $request): JsonResponse
     {
-        // foreach(AppType::TYPE_DEFINITION as $appType) {
-        //     dd($appType);
-        // }
-
         // http://localhost/hubspot/crm-card/contact-cluster?userId=65900859&userEmail=peter.huber@brandnamic.com&associatedObjectId=9483117011&associatedObjectType=COMPANY&portalId=143411655
         $hubId = $request->get('portalId');
         $hubspotUserId = $request->get('userId');

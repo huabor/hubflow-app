@@ -2,16 +2,19 @@
 
 namespace App\Jobs;
 
+use App\Enums\RefreshStatus;
 use App\Http\Integrations\Hubspot\CrmConnector;
 use App\Http\Integrations\Hubspot\Requests\SearchCompanies;
 use App\Models\ContactCluster;
 use App\Models\Hub;
 use App\Models\HubspotObject;
 use App\Models\HubspotToken;
+use Illuminate\Bus\Batch;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Bus;
 
-class ImportHubspotObject implements ShouldQueue
+class RefreshContactCluster implements ShouldQueue
 {
     use Queueable;
 
@@ -32,6 +35,17 @@ class ImportHubspotObject implements ShouldQueue
      */
     public function handle(): void
     {
+        $this->cluster->refresh_status = RefreshStatus::NEW;
+
+        if ($this->cluster->refresh_status === RefreshStatus::RUNNING) {
+            $this->fail('Contact Cluster is currently refreshing');
+
+            return;
+        }
+
+        $this->cluster->refresh_status = RefreshStatus::RUNNING;
+        $this->cluster->save();
+
         $hubspotCrmConnector = new CrmConnector(
             token: $this->token->token,
             hubspotToken: $this->token,
@@ -40,8 +54,10 @@ class ImportHubspotObject implements ShouldQueue
         $searchCompanies = new SearchCompanies(
             filter: $this->cluster->filter,
         );
+
         $paginator = $hubspotCrmConnector->paginate($searchCompanies);
         $count = 0;
+        $batches = [];
         $objectIds = [];
         foreach ($paginator->items() as $company) {
             $count++;
@@ -67,10 +83,28 @@ class ImportHubspotObject implements ShouldQueue
             $objectIds[] = $object->id;
 
             if ($object->location === null) {
-                ResolveHubspotObjectCoordinates::dispatch($this->hub, $object);
+                $batches[] = new ResolveHubspotObjectCoordinates(
+                    hub: $this->hub,
+                    hubspotObject: $object
+                );
             }
         }
 
         $this->cluster->objects()->sync($objectIds);
+
+        if (count($batches) > 0) {
+            $cluster = $this->cluster;
+            Bus::batch(
+                $batches
+            )
+                ->finally(function (Batch $batch) use ($cluster) {
+                    $cluster->refresh_status = RefreshStatus::DONE;
+                    $cluster->save();
+                })
+                ->dispatch();
+        } else {
+            $this->cluster->refresh_status = RefreshStatus::DONE;
+            $this->cluster->save();
+        }
     }
 }

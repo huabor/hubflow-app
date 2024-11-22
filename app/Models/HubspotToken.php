@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Models\HasDefaultOrder;
 use App\Traits\Models\StaticTableName;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class HubspotToken extends Model
 {
+    use HasDefaultOrder;
     use HasFactory;
     use StaticTableName;
 

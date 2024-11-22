@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\DTO\BirthdayReminderConfiguration;
 use App\Enums\AppType;
+use App\Traits\Models\HasDefaultOrder;
 use App\Traits\Models\StaticTableName;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class App extends Model
 {
+    use HasDefaultOrder;
     use HasFactory;
     use StaticTableName;
 

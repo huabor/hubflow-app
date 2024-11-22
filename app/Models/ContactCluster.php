@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\Hubspot\ObjectType;
+use App\Enums\RefreshStatus;
+use App\Traits\Models\HasDefaultOrder;
 use App\Traits\Models\StaticTableName;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class ContactCluster extends Model
 {
+    use HasDefaultOrder;
     use HasFactory;
     use StaticTableName;
 
@@ -27,6 +30,7 @@ class ContactCluster extends Model
         'color',
         'filter',
 
+        'refresh_status',
         'refreshed_at',
     ];
 
@@ -40,6 +44,7 @@ class ContactCluster extends Model
         return [
             'type' => ObjectType::class,
             'filter' => 'array',
+            'refresh_status' => RefreshStatus::class,
             'refreshed_at' => 'datetime',
         ];
     }

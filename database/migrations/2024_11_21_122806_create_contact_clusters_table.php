@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('color')->default('#5e93d2');
             $table->json('filter')->default('[]');
 
+            $table->tinyInteger('refresh_status')->default(0);
             $table->timestamp('refreshed_at')->nullable();
 
             $table->timestamps();

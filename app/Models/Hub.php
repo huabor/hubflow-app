@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Models\HasDefaultOrder;
 use App\Traits\Models\StaticTableName;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,6 +13,7 @@ use Laravel\Cashier\Order\Contracts\ProvidesInvoiceInformation;
 class Hub extends Model implements ProvidesInvoiceInformation
 {
     use Billable;
+    use HasDefaultOrder;
     use StaticTableName;
 
     /**

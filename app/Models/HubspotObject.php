@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Hubspot\ObjectType;
+use App\Traits\Models\HasDefaultOrder;
 use App\Traits\Models\StaticTableName;
 use Clickbar\Magellan\Database\Eloquent\HasPostgisColumns;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class HubspotObject extends Model
 {
+    use HasDefaultOrder;
     use HasFactory;
     use HasPostgisColumns;
     use StaticTableName;

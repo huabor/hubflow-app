@@ -4,7 +4,6 @@ namespace App\Http\Integrations\Hubspot;
 
 use App\Models\HubspotToken;
 use GuzzleHttp\Exception\ClientException;
-use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Exceptions\Request\FatalRequestException;
@@ -96,8 +95,6 @@ class CrmConnector extends Connector implements HasPagination
 
             protected function isLastPage(Response $response): bool
             {
-                Log::debug($this->getTotalResults());
-
                 return $response->collect('results')->count() === 0;
             }
 

@@ -136,6 +136,7 @@ export interface ContactCluster {
     color: string;
     filter: HubspotSearchFilter[];
 
+    refresh_status: number;
     refreshed_at: string;
 
     objects: HubspotObject[];

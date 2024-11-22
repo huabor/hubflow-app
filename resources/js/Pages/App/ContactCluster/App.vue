@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ArrowPathIcon, PencilIcon } from '@heroicons/vue/24/outline';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, router, useForm } from '@inertiajs/vue3';
 import axios from 'axios';
-import { ref, Ref } from 'vue';
+import { onMounted, ref, Ref } from 'vue';
 
 import { App, ContactCluster, HubspotObject, HubspotObjectType } from '@/types';
 
@@ -34,18 +34,29 @@ const selectedContactCluster: Ref<ContactCluster | undefined> = ref();
 
 const visibleContactCluster: Ref<ContactCluster[]> = ref([]);
 
+onMounted(() => {
+    window.setInterval(
+        () => router.reload({ only: ['contact_cluster'] }),
+        5000,
+    );
+});
+
 const editCluster = (cluster: ContactCluster) => {
-    selectedContactCluster.value = cluster;
-    showClusterModal.value = true;
+    if (![2, 3].includes(cluster.refresh_status)) {
+        selectedContactCluster.value = cluster;
+        showClusterModal.value = true;
+    }
 };
 
 const refreshCluster = (cluster: ContactCluster) => {
-    useForm({}).get(
-        route('app.contact-cluster.refresh', {
-            app: props.app,
-            cluster: cluster,
-        }),
-    );
+    if (![2, 3].includes(cluster.refresh_status)) {
+        useForm({}).get(
+            route('app.contact-cluster.refresh', {
+                app: props.app,
+                cluster: cluster,
+            }),
+        );
+    }
 };
 
 const toggleClusterOnMap = async (cluster: ContactCluster) => {
@@ -122,14 +133,37 @@ const closeClusterModal = () => {
                                             </span>
                                         </div>
                                         <div class="flex items-center gap-2">
-                                            <ArrowPathIcon
-                                                class="size-4 cursor-pointer text-gray-600 hover:text-primary-400"
+                                            <button
                                                 @click="refreshCluster(cluster)"
-                                            />
-                                            <PencilIcon
-                                                class="size-4 cursor-pointer text-gray-600 hover:text-primary-400"
+                                                :disabled="
+                                                    [2, 3].includes(
+                                                        cluster.refresh_status,
+                                                    )
+                                                "
+                                                class="size-5 text-gray-600 hover:text-primary-400 disabled:text-gray-600 disabled:opacity-70"
+                                            >
+                                                <ArrowPathIcon
+                                                    :class="{
+                                                        'animate-spin': [
+                                                            2, 3,
+                                                        ].includes(
+                                                            cluster.refresh_status,
+                                                        ),
+                                                    }"
+                                                />
+                                            </button>
+
+                                            <button
                                                 @click="editCluster(cluster)"
-                                            />
+                                                :disabled="
+                                                    [2, 3].includes(
+                                                        cluster.refresh_status,
+                                                    )
+                                                "
+                                                class="size-5 text-gray-600 hover:text-primary-400 disabled:text-gray-600 disabled:opacity-70"
+                                            >
+                                                <PencilIcon />
+                                            </button>
                                         </div>
                                     </div>
 
@@ -199,7 +233,7 @@ const closeClusterModal = () => {
                                                         <button
                                                             :class="
                                                                 checked
-                                                                    ? 'bg-blue-600'
+                                                                    ? 'bg-primary-400'
                                                                     : 'bg-gray-200'
                                                             "
                                                             class="relative inline-flex h-6 w-11 items-center rounded-full"

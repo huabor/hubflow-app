@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers\App\ContactCluster;
 
-use App\Jobs\ImportHubspotObject;
+use App\Enums\RefreshStatus;
+use App\Jobs\RefreshContactCluster;
 use App\Models\App;
 use App\Models\ContactCluster;
 use App\Models\HubspotToken;
@@ -33,7 +34,9 @@ final class RefreshController
             )
             ->firstOrFail();
 
-        ImportHubspotObject::dispatch($token, $cluster);
+        $cluster->refresh_status = RefreshStatus::QUEUED->value;
+        $cluster->save();
+        RefreshContactCluster::dispatch($token, $cluster);
 
         $cluster->refreshed_at = Carbon::now();
         $cluster->save();

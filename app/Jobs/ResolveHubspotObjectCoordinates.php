@@ -6,11 +6,13 @@ use App\Models\Hub;
 use App\Models\HubspotObject;
 use Clickbar\Magellan\Data\Geometries\Point;
 use Geocoder\Query\GeocodeQuery;
+use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
 class ResolveHubspotObjectCoordinates implements ShouldQueue
 {
+    use Batchable;
     use Queueable;
 
     /**
@@ -26,6 +28,12 @@ class ResolveHubspotObjectCoordinates implements ShouldQueue
      */
     public function handle(): void
     {
+        if ($this->batch()->cancelled()) {
+            // Determine if the batch has been cancelled...
+
+            return;
+        }
+
         $resolvedObjectLocations = $this->hub->objects()
             ->whereNotNull('location')
             ->count();
