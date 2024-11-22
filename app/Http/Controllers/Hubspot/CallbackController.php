@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Hubspot;
 
+use App\Enums\AppType;
 use App\Events\System\Registered;
 use App\Http\Integrations\Hubspot\CrmConnector;
 use App\Http\Integrations\Hubspot\Requests\GetOwner;
+use App\Models\App;
 use App\Models\Hub;
 use App\Models\HubspotToken;
 use App\Models\User;
@@ -67,6 +69,15 @@ final class CallbackController
                     'domain' => $hubspotUser->user['hub_domain'],
                 ]
             );
+
+            foreach (AppType::TYPE_DEFINITION as $appType) {
+                $app = new App;
+                $app->hub_id = $hub->id;
+                $app->type = AppType::CONTACT_CLUSTER;
+                $app->name = $appType['name'];
+                $app->configuration = $appType['configuration'];
+                $app->save();
+            }
         } elseif ($hub->domain !== $hubspotUser->user['hub_domain']) {
             $hub->domain = $hubspotUser->user['hub_domain'];
             $hub->save();
