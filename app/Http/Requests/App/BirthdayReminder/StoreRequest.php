@@ -3,12 +3,8 @@
 namespace App\Http\Requests\App\BirthdayReminder;
 
 use App\Enums\BirthdayReminderReceiver;
-use App\Enums\Hubspot\ObjectType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Validation\ValidationException;
 use Spatie\ValidationRules\Rules\Delimited;
 
 class StoreRequest extends FormRequest
@@ -38,8 +34,8 @@ class StoreRequest extends FormRequest
 
             'receiver_emails' => [
                 'present',
-                'required_if:receiver,' . BirthdayReminderReceiver::EMAIL_RECEIVER->value,
-                new Delimited('email')
+                'required_if:receiver,'.BirthdayReminderReceiver::EMAIL_RECEIVER->value,
+                new Delimited('email'),
             ],
 
             'send_reminder_before' => [

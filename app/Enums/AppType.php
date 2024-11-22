@@ -18,7 +18,7 @@ enum AppType: string
             'type' => self::CONTACT_CLUSTER->value,
             'name' => 'Contact Cluster',
             'description' => '',
-            'configuration' => []
+            'configuration' => [],
         ],
 
         self::BIRTHDAY_REMINDER->value => [
@@ -29,8 +29,8 @@ enum AppType: string
                 'enabled' => false,
                 'send_reminder_before' => 0,
                 'receiver' => BirthdayReminderReceiver::CONTACT_OWNER->value,
-                'receiver_emails' => ''
-            ]
+                'receiver_emails' => '',
+            ],
         ],
     ];
 }

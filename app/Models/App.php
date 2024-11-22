@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\DTO\BirthdayReminderConfiguration;
 use App\Enums\AppType;
-use App\Enums\BirthdayReminderReceiver;
 use App\Traits\Models\StaticTableName;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -64,16 +63,16 @@ class App extends Model
         );
     }
 
-
     /**
      * Get the user's first name.
      */
     protected function configuration(): Attribute
-    {    
+    {
         return Attribute::make(
-            get: function (string $value)  {
-                if($this->type === AppType::BIRTHDAY_REMINDER) {
+            get: function (string $value) {
+                if ($this->type === AppType::BIRTHDAY_REMINDER) {
                     $configuration = json_decode($value);
+
                     return BirthdayReminderConfiguration::from($configuration);
                 }
 

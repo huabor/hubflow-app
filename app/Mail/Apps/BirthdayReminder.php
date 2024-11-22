@@ -20,7 +20,7 @@ class BirthdayReminder extends Mailable implements ShouldQueue
     public function __construct(
         public array $birthdays,
         public Carbon $date,
-        public ?array $receiver=null,
+        public ?array $receiver = null,
     ) {}
 
     /**

@@ -1,10 +1,10 @@
 <?php
 
+use App\Http\Controllers\App\BirthdayReminder\StoreController as BirthdayReminderStoreController;
 use App\Http\Controllers\App\ContactCluster\AppController as ContactClusterAppController;
 use App\Http\Controllers\App\ContactCluster\CrmCardController;
 use App\Http\Controllers\App\ContactCluster\RefreshController as ContactClusterRefreshController;
 use App\Http\Controllers\App\ContactCluster\StoreController as ContactClusterStoreController;
-use App\Http\Controllers\App\BirthdayReminder\StoreController as BirthdayReminderStoreController;
 use App\Http\Controllers\App\IndexController as AppIndexController;
 use App\Http\Controllers\App\ShowController as AppShowController;
 use App\Http\Controllers\Billing\CancelSubscriptionController as BillingCancelSubscriptionController;

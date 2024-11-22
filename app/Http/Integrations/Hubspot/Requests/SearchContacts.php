@@ -50,7 +50,6 @@ class SearchContacts extends Request implements HasBody
             $this->properties,
         );
 
-
         $body = [
             'limit' => 200,
             'properties' => $properties,

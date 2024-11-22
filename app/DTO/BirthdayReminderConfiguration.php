@@ -10,7 +10,7 @@ class BirthdayReminderConfiguration extends Data
     public function __construct(
         public bool $enabled,
         public BirthdayReminderReceiver $receiver,
-        public string|null $receiver_emails = '',
+        public ?string $receiver_emails,
         public int $send_reminder_before,
         public ?array $properties = []
     ) {

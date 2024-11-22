@@ -15,12 +15,8 @@ use App\Mail\Apps\BirthdayReminder as BirthdayReminderMail;
 use App\Models\App;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
-use stdClass;
-
+use Illuminate\Support\Facades\Validator;
 
 class BirthdayReminder extends Command
 {
@@ -59,6 +55,7 @@ class BirthdayReminder extends Command
 
             if ($configuration->enabled === false) {
                 $this->info("$app->name is not enabled!");
+
                 continue;
             }
 
@@ -96,13 +93,14 @@ class BirthdayReminder extends Command
 
             if (isset($response['status']) && $response['status'] === 'error') {
                 $this->info("$propertyName doesn't exists!");
+
                 // @Todo: Error handling
                 continue;
             }
 
             // Set date to retrieve birthdays
             $date = Carbon::today()->addDays($configuration->send_reminder_before);
-            $this->info('Date set to: ' . $date->toDateString());
+            $this->info('Date set to: '.$date->toDateString());
 
             $day = $date->day;
             $month = $date->month;
@@ -135,7 +133,7 @@ class BirthdayReminder extends Command
             $contacts = $res->collect('results');
 
             $birthdays = $contacts->map(function ($contact) use ($configuration, $hubspotCrmConnector, $hub, $contactProperties) {
-                $this->info('Processing contact ID: ' . $contact['id']);
+                $this->info('Processing contact ID: '.$contact['id']);
 
                 $contactId = $contact['id'];
                 $properties = $contact['properties'];
@@ -149,14 +147,14 @@ class BirthdayReminder extends Command
                 ];
 
                 $result['properties'] = collect($configuration->properties)
-                    ->map(fn($property) => [
+                    ->map(fn ($property) => [
                         'key' => $property,
-                        'label' => $contactProperties->first(fn($contactProperty) => $contactProperty['name'] === $property)['label'] ?? $property,
+                        'label' => $contactProperties->first(fn ($contactProperty) => $contactProperty['name'] === $property)['label'] ?? $property,
                         'value' => $properties[$property] ?? null,
                     ])
                     ->all();
 
-                    $this->info('Contact name: ' . $result['firstname'] . ' ' . $result['lastname']);
+                $this->info('Contact name: '.$result['firstname'].' '.$result['lastname']);
 
                 if ($properties['hubspot_owner_id'] !== null) {
                     $ownerId = $properties['hubspot_owner_id'];
@@ -167,7 +165,6 @@ class BirthdayReminder extends Command
                     $result['ownerLastname'] = $owner['lastName'];
                     $result['ownerEmail'] = $owner['email'];
                 }
-
 
                 if ($properties['associatedcompanyid'] !== null) {
                     $companyId = $properties['associatedcompanyid'];
@@ -197,12 +194,12 @@ class BirthdayReminder extends Command
                         )
                     );
                 }
-            } else if ($configuration->receiver === BirthdayReminderReceiver::CONTACT_OWNER) {
+            } elseif ($configuration->receiver === BirthdayReminderReceiver::CONTACT_OWNER) {
                 $groupedBirthdays = $birthdays->groupBy('ownerEmail');
 
                 // Send an email to each owner with their contacts' birthday details
                 $groupedBirthdays->each(function ($groupedBirthday) use ($configuration, $date) {
-                    if (!isset($groupedBirthday->first()['ownerEmail'])) {
+                    if (! isset($groupedBirthday->first()['ownerEmail'])) {
                         $emails = explode(
                             string: $configuration->receiver_emails,
                             separator: ','
@@ -211,7 +208,7 @@ class BirthdayReminder extends Command
                         foreach ($emails as $email) {
                             // Check if receiver is a valid E-Mail
                             $validator = Validator::make(['email' => $email], [
-                                'email' => 'required|email'
+                                'email' => 'required|email',
                             ]);
 
                             if ($validator->passes()) {
@@ -234,7 +231,7 @@ class BirthdayReminder extends Command
 
                         // Check if receiver is a valid E-Mail
                         $validator = Validator::make(['email' => $receiver['email']], [
-                            'email' => 'required|email'
+                            'email' => 'required|email',
                         ]);
 
                         if ($validator->passes()) {

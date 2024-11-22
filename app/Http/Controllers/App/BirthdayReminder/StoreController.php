@@ -5,7 +5,6 @@ namespace App\Http\Controllers\App\BirthdayReminder;
 use App\DTO\BirthdayReminderConfiguration;
 use App\Http\Requests\App\BirthdayReminder\StoreRequest;
 use App\Models\App;
-use App\Models\ContactCluster;
 use Illuminate\Http\RedirectResponse;
 
 final class StoreController

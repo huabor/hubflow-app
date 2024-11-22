@@ -82,10 +82,10 @@ final class CrmCardController
                     'objectId' => $app->id,
                     'title' => $hubspotObject !== null ?
                         "Hubflow Apps - Contact Cluster - $hubspotObject->name" :
-                        "Hubflow Apps - Contact Cluster",
+                        'Hubflow Apps - Contact Cluster',
                     'description' => $hubspotObject !== null ?
                         "Show $hubspotObject->name and surrounding companies on the world map." :
-                        "Show your customers on the world map.",
+                        'Show your customers on the world map.',
                     'link' => $appUrl,
                 ],
             ],
