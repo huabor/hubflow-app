@@ -35,8 +35,6 @@ return [
     ],
 
     'hubspot' => [
-        'token' => env('HUBSPOT_API_TOKEN'),
-
         'client_id' => env('HUBSPOT_CLIENT_ID'),
         'client_secret' => env('HUBSPOT_CLIENT_SECRET'),
         'redirect' => env('APP_URL').'/oauth/hubspot/callback',
