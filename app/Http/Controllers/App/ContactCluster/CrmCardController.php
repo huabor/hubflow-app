@@ -32,7 +32,7 @@ final class CrmCardController
         $hubspotObject = HubspotObject::query()
             ->where('hub_id', $hub->id)
             ->where('hubspot_id', $hubspotObjectId)
-            ->firstOrFail();
+            ->first();
 
         $app = $hub->apps()
             ->where('type', AppType::CONTACT_CLUSTER)
@@ -48,11 +48,15 @@ final class CrmCardController
             'type' => AppType::CONTACT_CLUSTER,
         ]);
 
-        $iframeUrl = route('crm-card.show', [
+        $iframeRouteParameter = [
             'type' => AppType::CONTACT_CLUSTER,
             'token' => $token->plainTextToken,
-            'company' => $hubspotObject->id,
-        ]);
+        ];
+        if ($hubspotObject !== null) {
+            $iframeRouteParameter['company'] = $hubspotObject->id;
+        }
+
+        $iframeUrl = route('crm-card.show', $iframeRouteParameter);
 
         $result = [
             'primaryAction' => [
@@ -76,8 +80,12 @@ final class CrmCardController
             'results' => [
                 [
                     'objectId' => $app->id,
-                    'title' => "Contact Cluster - $hubspotObject->name",
-                    'description' => "Show $hubspotObject->name and surrounding companies on the world map.",
+                    'title' => $hubspotObject !== null ?
+                        "Hubflow Apps - Contact Cluster - $hubspotObject->name" :
+                        "Hubflow Apps - Contact Cluster",
+                    'description' => $hubspotObject !== null ?
+                        "Show $hubspotObject->name and surrounding companies on the world map." :
+                        "Show your customers on the world map.",
                     'link' => $appUrl,
                 ],
             ],
