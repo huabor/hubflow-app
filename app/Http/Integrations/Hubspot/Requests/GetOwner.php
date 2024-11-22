@@ -2,11 +2,19 @@
 
 namespace App\Http\Integrations\Hubspot\Requests;
 
+use Illuminate\Support\Facades\Cache;
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
+use Saloon\CachePlugin\Contracts\Cacheable;
+use Saloon\CachePlugin\Contracts\Driver;
+use Saloon\CachePlugin\Drivers\LaravelCacheDriver;
+use Saloon\CachePlugin\Traits\HasCaching;
+use Saloon\Http\PendingRequest;
 
-class GetOwner extends Request
+class GetOwner extends Request implements Cacheable
 {
+    use HasCaching;
+
     /**
      * The HTTP method of the request
      */
@@ -31,5 +39,20 @@ class GetOwner extends Request
             'idProperty' => $this->idProperty,
             'archived' => 'false',
         ];
+    }
+
+    public function resolveCacheDriver(): Driver
+    {
+        return new LaravelCacheDriver(Cache::store('database'));
+    }
+
+    public function cacheExpiryInSeconds(): int
+    {
+        return 3600;
+    }
+
+    protected function cacheKey(PendingRequest $pendingRequest): ?string
+    {
+        return "owner-$this->idProperty-$this->userId";
     }
 }

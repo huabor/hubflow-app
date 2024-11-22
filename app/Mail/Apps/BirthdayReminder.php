@@ -2,6 +2,7 @@
 
 namespace App\Mail\Apps;
 
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -17,8 +18,9 @@ class BirthdayReminder extends Mailable implements ShouldQueue
      * Create a new message instance.
      */
     public function __construct(
-        public array $receiver,
         public array $birthdays,
+        public Carbon $date,
+        public ?array $receiver=null,
     ) {}
 
     /**
@@ -27,7 +29,7 @@ class BirthdayReminder extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Birthday Reminder',
+            subject: 'Hubflow Apps - Birthday Reminder',
         );
     }
 

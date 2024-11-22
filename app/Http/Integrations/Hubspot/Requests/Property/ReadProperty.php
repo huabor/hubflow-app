@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Http\Integrations\Hubspot\Requests;
+namespace App\Http\Integrations\Hubspot\Requests\Property;
 
 use Illuminate\Support\Facades\Cache;
-use Saloon\Enums\Method;
-use Saloon\Http\Request;
 use Saloon\CachePlugin\Contracts\Cacheable;
 use Saloon\CachePlugin\Contracts\Driver;
 use Saloon\CachePlugin\Drivers\LaravelCacheDriver;
 use Saloon\CachePlugin\Traits\HasCaching;
+use Saloon\Enums\Method;
 use Saloon\Http\PendingRequest;
+use Saloon\Http\Request;
 
-class GetCompany extends Request implements Cacheable
+class ReadProperty extends Request implements Cacheable
 {
     use HasCaching;
 
@@ -21,7 +21,9 @@ class GetCompany extends Request implements Cacheable
     protected Method $method = Method::GET;
 
     public function __construct(
-        protected string $companyId,
+        protected string $hubId,
+        protected string $objectType,
+        protected string $propertyName,
     ) {}
 
     /**
@@ -29,14 +31,7 @@ class GetCompany extends Request implements Cacheable
      */
     public function resolveEndpoint(): string
     {
-        return "/objects/companies/$this->companyId";
-    }
-
-    protected function defaultQuery(): array
-    {
-        return [
-            'archived' => 'false',
-        ];
+        return "/properties/$this->objectType/$this->propertyName";
     }
 
     public function resolveCacheDriver(): Driver
@@ -51,6 +46,6 @@ class GetCompany extends Request implements Cacheable
 
     protected function cacheKey(PendingRequest $pendingRequest): ?string
     {
-        return "owner-$this->companyId";
+        return "properties-$this->objectType-$this->hubId-$this->propertyName";
     }
 }

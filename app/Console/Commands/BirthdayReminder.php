@@ -2,15 +2,25 @@
 
 namespace App\Console\Commands;
 
+use App\DTO\BirthdayReminderConfiguration;
+use App\Enums\AppType;
+use App\Enums\BirthdayReminderReceiver;
 use App\Http\Integrations\Hubspot\CrmConnector;
 use App\Http\Integrations\Hubspot\Requests\GetCompany;
 use App\Http\Integrations\Hubspot\Requests\GetOwner;
+use App\Http\Integrations\Hubspot\Requests\Property\ReadAllProperties;
+use App\Http\Integrations\Hubspot\Requests\Property\ReadProperty;
 use App\Http\Integrations\Hubspot\Requests\SearchContacts;
 use App\Mail\Apps\BirthdayReminder as BirthdayReminderMail;
+use App\Models\App;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use stdClass;
+
 
 class BirthdayReminder extends Command
 {
@@ -19,77 +29,102 @@ class BirthdayReminder extends Command
      *
      * @var string
      */
-    protected $signature = 'hubspot-apps:birthday-reminder';
+    protected $signature = 'hubflow-apps:birthday-reminder';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Send daily birthday reminders to the Contact owner of hubspot';
+    protected $description = 'Send daily Birthday Reminders for the HubSpot Contacts.';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $notificationText = new stdClass;
-        $notificationText->name = 'Birthday Reminder Textfield';
-        $notificationText->field = 'star_sign';
-        $notificationText->operator = 'CONTAINS_TOKEN';
-        $notificationText->field_type = 'text';
-        $notificationText->filter = new stdClass;
-        $notificationText->filter->daysInFuture = -1;
-        $notificationText->filter->dateFormat = 'd|m';
+        $this->info('Starting birthday reminder command.');
 
-        $notificationDate = new stdClass;
-        $notificationDate->name = 'Birthday Reminder';
-        $notificationDate->field = 'date_of_birth';
-        $notificationDate->operator = 'IN';
-        $notificationDate->field_type = 'date';
-        $notificationDate->filter = new stdClass;
-        $notificationDate->filter->daysInFuture = -1;
-        $notificationDate->filter->ignoreYear = true;
+        $apps = App::query()
+            ->where(
+                column: 'type',
+                operator: '=',
+                value: AppType::BIRTHDAY_REMINDER
+            )
+            ->orderBy('id', 'asc')
+            ->get();
 
-        $notifications = [
-            $notificationDate,
-            $notificationText,
-        ];
+        foreach ($apps as $app) {
+            $configuration = BirthdayReminderConfiguration::from($app->configuration);
 
-        foreach ($notifications as $notification) {
+            if ($configuration->enabled === false) {
+                $this->info("$app->name is not enabled!");
+                continue;
+            }
 
-            $this->info('Starting birthday reminder command.');
+            $hub = $app->hub;
+            $user = $hub->billingAdmin;
+            $token = $user->hubspotTokens()
+                ->where(
+                    column: 'hub_id',
+                    operator: '=',
+                    value: $hub->id
+                )
+                ->first();
 
             // Initialize Hubspot CRM connector with the API token from configuration
             $hubspotCrmConnector = new CrmConnector(
-                token: config('services.hubspot.token'),
+                token: $token->token,
+                hubspotToken: $token,
             );
 
-            $this->info('Hubspot CRM Connector initialized.');
+            $propertyName = 'date_of_birth';
+            $readProperty = new ReadProperty(
+                hubId: $hub->id,
+                objectType: 'contacts',
+                propertyName: $propertyName,
+            );
+            $propertyResponse = $hubspotCrmConnector->send($readProperty);
+            $birthdayProperty = $propertyResponse->json();
 
-            // Set today's date
-            $date = Carbon::today()->addDays($notification->filter->daysInFuture);
-            $this->info('Date set to: '.$date->toDateString());
+            $readAllProperties = new ReadAllProperties(
+                hubId: $hub->id,
+                objectType: 'contacts',
+            );
+            $propertyResponse = $hubspotCrmConnector->send($readAllProperties);
+            $contactProperties = $propertyResponse->collect('results');
 
-            $filterValue = '';
-            if ($notification->field_type === 'date') {
-                if ($notification->filter->ignoreYear) {
-                    $years = collect(range(date('Y'), 1925));
-                } else {
-                    $years = collect([$date->year]);
-                }
-
-                $filterValue = $years->map(fn ($year) => Carbon::parse("$year-$date->month-$date->day")->getTimestampMs())->toArray();
-            } elseif ($notification->field_type === 'text') {
-                $filterValue = $date->format($notification->filter->dateFormat);
-                $this->info($filterValue);
+            if (isset($response['status']) && $response['status'] === 'error') {
+                $this->info("$propertyName doesn't exists!");
+                // @Todo: Error handling
+                continue;
             }
+
+            // Set date to retrieve birthdays
+            $date = Carbon::today()->addDays($configuration->send_reminder_before);
+            $this->info('Date set to: ' . $date->toDateString());
+
+            $day = $date->day;
+            $month = $date->month;
+            $years = collect(range(date('Y'), 1925));
+            $filterValue = $years
+                ->map(function ($year) use ($birthdayProperty, $month, $day) {
+                    $date = Carbon::parse("$year-$month-$day");
+
+                    if ($birthdayProperty['fieldType'] === 'date') {
+                        return $date->getTimestampMs();
+                    }
+
+                    return $date->format('Y-m-d');
+                })
+                ->toArray();
 
             // Search for contacts whose birthdays match today's day and month
             $searchContacts = new SearchContacts(
-                field: $notification->field,
-                operator: $notification->operator,
+                field: $propertyName,
+                operator: 'IN',
                 filterValue: $filterValue,
+                properties: $configuration->properties,
             );
 
             $this->info('Searching for contacts with birthdays today.');
@@ -99,15 +134,8 @@ class BirthdayReminder extends Command
             // Collect contact results
             $contacts = $res->collect('results');
 
-            $this->info($notification->name);
-            $this->info($contacts->map(fn ($c) => $c['properties']['firstname'].' '.$c['properties']['lastname'].' - '.$c['properties']['date_of_birth'])->join(' | '));
-
-            $owners = collect(); // Cache for owners to avoid multiple API calls
-            $companies = collect(); // Cache for companies to avoid multiple API calls
-
-            continue;
-            $birthdays = $contacts->map(function ($contact) use ($hubspotCrmConnector, $owners, $companies) {
-                $this->info('Processing contact ID: '.$contact['id']);
+            $birthdays = $contacts->map(function ($contact) use ($configuration, $hubspotCrmConnector, $hub, $contactProperties) {
+                $this->info('Processing contact ID: ' . $contact['id']);
 
                 $contactId = $contact['id'];
                 $properties = $contact['properties'];
@@ -117,89 +145,115 @@ class BirthdayReminder extends Command
                     'firstname' => $properties['firstname'],
                     'lastname' => $properties['lastname'],
                     'dateOfBirth' => $properties['date_of_birth'],
-                    'birthdayText' => $properties['birthdaytext'],
-                    'hubspotContactUrl' => "https://app-eu1.hubspot.com/contacts/143411655/record/0-1/{$contactId}",
+                    'hubspotContactUrl' => "https://app-eu1.hubspot.com/contacts/$hub->hub_id/record/0-1/$contactId",
                 ];
 
-                $this->info('Contact name: '.$result['firstname'].' '.$result['lastname']);
+                $result['properties'] = collect($configuration->properties)
+                    ->map(fn($property) => [
+                        'key' => $property,
+                        'label' => $contactProperties->first(fn($contactProperty) => $contactProperty['name'] === $property)['label'] ?? $property,
+                        'value' => $properties[$property] ?? null,
+                    ])
+                    ->all();
 
-                // Fetch owner details, using cache if available
-                $ownerId = $properties['hubspot_owner_id'];
-                $owner = $owners->get($ownerId);
+                    $this->info('Contact name: ' . $result['firstname'] . ' ' . $result['lastname']);
 
-                if (! $owner) {
-                    $this->info('Fetching owner ID: '.$ownerId);
+                if ($properties['hubspot_owner_id'] !== null) {
+                    $ownerId = $properties['hubspot_owner_id'];
                     $getOwner = new GetOwner(userId: $ownerId);
                     $getOwnerResponse = $hubspotCrmConnector->send($getOwner);
                     $owner = $getOwnerResponse->json();
-                    $owners->put($ownerId, $owner);
-                    $this->info('Owner data cached for ID: '.$ownerId);
-                } else {
-                    $this->info('Owner ID '.$ownerId.' found in cache.');
+                    $result['ownerFirstname'] = $owner['firstName'];
+                    $result['ownerLastname'] = $owner['lastName'];
+                    $result['ownerEmail'] = $owner['email'];
                 }
 
-                // Store owner details
-                $result['ownerFirstname'] = $owner['firstName'];
-                $result['ownerLastname'] = $owner['lastName'];
-                $result['ownerEmail'] = $owner['email'];
 
-                // Fetch company details, using cache if available
-                $companyId = $properties['associatedcompanyid'];
-                $company = $companies->get($companyId);
-
-                if (! $company) {
-                    $this->info('Fetching company ID: '.$companyId);
+                if ($properties['associatedcompanyid'] !== null) {
+                    $companyId = $properties['associatedcompanyid'];
                     $getCompany = new GetCompany(companyId: $companyId);
                     $getCompanyResponse = $hubspotCrmConnector->send($getCompany);
                     $company = $getCompanyResponse->json();
-                    $companies->put($companyId, $company);
-                    $this->info('Company data cached for ID: '.$companyId);
-                } else {
-                    $this->info('Company ID '.$companyId.' found in cache.');
+                    $result['companyDomain'] = $company['properties']['domain'];
+                    $result['companyName'] = $company['properties']['name'];
                 }
-
-                // Store company details
-                $result['companyDomain'] = $company['properties']['domain'];
-                $result['companyName'] = $company['properties']['name'];
-
-                $this->info('Contact processed: '.$result['firstname'].' '.$result['lastname']);
 
                 return $result;
             });
 
-            // Group birthdays by the owner's email address
-            $groupedBirthdays = $birthdays->groupBy('ownerEmail');
-            $this->info('Birthdays grouped by owner email.');
-
-            // Send an email to each owner with their contacts' birthday details
-            $groupedBirthdays->each(function ($groupedBirthday) {
-                $receiver = [
-                    'firstname' => $groupedBirthday->first()['ownerFirstname'],
-                    'lastname' => $groupedBirthday->first()['ownerLastname'],
-                    'email' => $groupedBirthday->first()['ownerEmail'],
-                ];
-
-                $this->info('Sending email to: '.$receiver['email']);
-
-                // Send the birthday reminder email
-                Mail::to(
-                    // users: $receiver['email'],
-                    users: [
-                        'peter.huber@brandnamic.com',
-                        'stephan.kohl@brandnamic.com',
-                    ],
-                    name: "{$receiver['firstname']} {$receiver['lastname']}"
-                )->send(
-                    new BirthdayReminderMail(
-                        receiver: $receiver,
-                        birthdays: $groupedBirthday->toArray()
-                    )
+            if ($configuration->receiver === BirthdayReminderReceiver::EMAIL_RECEIVER) {
+                $emails = explode(
+                    string: $configuration->receiver_emails,
+                    separator: ','
                 );
 
-                $this->info('Email sent to: '.$receiver['email']);
-            });
+                foreach ($emails as $email) {
+                    Mail::to(
+                        users: [$email],
+                    )->send(
+                        new BirthdayReminderMail(
+                            birthdays: $birthdays->all(),
+                            date: $date,
+                        )
+                    );
+                }
+            } else if ($configuration->receiver === BirthdayReminderReceiver::CONTACT_OWNER) {
+                $groupedBirthdays = $birthdays->groupBy('ownerEmail');
 
-            $this->info('Birthday reminder command completed.');
+                // Send an email to each owner with their contacts' birthday details
+                $groupedBirthdays->each(function ($groupedBirthday) use ($configuration, $date) {
+                    if (!isset($groupedBirthday->first()['ownerEmail'])) {
+                        $emails = explode(
+                            string: $configuration->receiver_emails,
+                            separator: ','
+                        );
+
+                        foreach ($emails as $email) {
+                            // Check if receiver is a valid E-Mail
+                            $validator = Validator::make(['email' => $email], [
+                                'email' => 'required|email'
+                            ]);
+
+                            if ($validator->passes()) {
+                                Mail::to(
+                                    users: [$email],
+                                )->send(
+                                    new BirthdayReminderMail(
+                                        birthdays: $groupedBirthday->all(),
+                                        date: $date,
+                                    )
+                                );
+                            }
+                        }
+                    } else {
+                        $receiver = [
+                            'firstname' => $groupedBirthday->first()['ownerFirstname'],
+                            'lastname' => $groupedBirthday->first()['ownerLastname'],
+                            'email' => $groupedBirthday->first()['ownerEmail'],
+                        ];
+
+                        // Check if receiver is a valid E-Mail
+                        $validator = Validator::make(['email' => $receiver['email']], [
+                            'email' => 'required|email'
+                        ]);
+
+                        if ($validator->passes()) {
+                            Mail::to(
+                                users: [
+                                    $receiver['email'],
+                                ],
+                                name: "{$receiver['firstname']} {$receiver['lastname']}"
+                            )->send(
+                                new BirthdayReminderMail(
+                                    receiver: $receiver,
+                                    birthdays: $groupedBirthday->all(),
+                                    date: $date,
+                                )
+                            );
+                        }
+                    }
+                });
+            }
         }
     }
 }

@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use App\DTO\BirthdayReminderConfiguration;
 use App\Enums\AppType;
+use App\Enums\BirthdayReminderReceiver;
 use App\Traits\Models\StaticTableName;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -52,22 +55,30 @@ class App extends Model
     }
 
     /**
-     * Get the Hubspot Token that owns the App
-     */
-    public function hubspotToken(): BelongsTo
-    {
-        return $this->belongsTo(
-            related: HubspotToken::class
-        );
-    }
-
-    /**
      * Get all of the contactCluster for the App
      */
     public function contactCluster(): HasMany
     {
         return $this->hasMany(
             related: ContactCluster::class,
+        );
+    }
+
+
+    /**
+     * Get the user's first name.
+     */
+    protected function configuration(): Attribute
+    {    
+        return Attribute::make(
+            get: function (string $value)  {
+                if($this->type === AppType::BIRTHDAY_REMINDER) {
+                    $configuration = json_decode($value);
+                    return BirthdayReminderConfiguration::from($configuration);
+                }
+
+                return $value;
+            },
         );
     }
 }

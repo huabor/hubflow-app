@@ -4,8 +4,12 @@ namespace App\Http\Controllers\App;
 
 use App\Enums\AppType;
 use App\Enums\Hubspot\ObjectType;
+use App\Http\Integrations\Hubspot\CrmConnector;
+use App\Http\Integrations\Hubspot\Requests\Property\ReadAllProperties;
 use App\Models\App;
 use App\Models\HubspotObject;
+use App\Models\HubspotToken;
+use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -43,6 +47,7 @@ final class ShowController
             $app->hub_id = $hub->id;
             $app->type = $type;
             $app->name = $appType['name'];
+            $app->configuration = $appType['configuration'];
             $app->save();
         }
 
@@ -76,6 +81,41 @@ final class ShowController
                     $renderProps['object'] = $object;
                 }
             }
+        }
+
+        if ($app->type === AppType::BIRTHDAY_REMINDER) {
+            $user = $request->user();
+            $hub = $user->selectedHub;
+
+            $token = HubspotToken::query()
+                ->where(
+                    column: 'user_id',
+                    operator: '=',
+                    value: $user->id
+                )
+                ->where(
+                    column: 'hub_id',
+                    operator: '=',
+                    value: $hub->id
+                )
+                ->firstOrFail();
+
+            // Initialize Hubspot CRM connector with the API token from configuration
+            $hubspotCrmConnector = new CrmConnector(
+                token: $token->token,
+                hubspotToken: $token,
+            );
+
+            Debugbar::startMeasure('render', 'Get all company properties');
+            $readAllProperties = new ReadAllProperties(
+                hubId: $hub->id,
+                objectType: 'contacts',
+            );
+            $propertyResponse = $hubspotCrmConnector->send($readAllProperties);
+            $response = $propertyResponse->collect('results');
+
+            $renderProps['contact_properties'] = $response;
+            Debugbar::stopMeasure('render');
         }
 
         if ($view === null) {

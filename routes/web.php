@@ -4,6 +4,7 @@ use App\Http\Controllers\App\ContactCluster\AppController as ContactClusterAppCo
 use App\Http\Controllers\App\ContactCluster\CrmCardController;
 use App\Http\Controllers\App\ContactCluster\RefreshController as ContactClusterRefreshController;
 use App\Http\Controllers\App\ContactCluster\StoreController as ContactClusterStoreController;
+use App\Http\Controllers\App\BirthdayReminder\StoreController as BirthdayReminderStoreController;
 use App\Http\Controllers\App\IndexController as AppIndexController;
 use App\Http\Controllers\App\ShowController as AppShowController;
 use App\Http\Controllers\Billing\CancelSubscriptionController as BillingCancelSubscriptionController;
@@ -78,6 +79,8 @@ Route::middleware([
         Route::get('contact-cluster/{cluster}', ContactClusterAppController::class)->name('app.contact-cluster');
         Route::post('app/{app}/contact-cluster', ContactClusterStoreController::class)->name('app.contact-cluster.store');
         Route::get('app/{app}/contact-cluster/{cluster}', ContactClusterRefreshController::class)->name('app.contact-cluster.refresh');
+
+        Route::post('app/{app}/birthday-reminder', BirthdayReminderStoreController::class)->name('app.birthday-reminder.store');
 
         Route::get('hubspot/api/company-property', HubspotApiCompanyPropertyController::class)->name('hubspot.api.company-property');
         Route::post('hubspot/api/company-search', HubspotApiCompanySearchController::class)->name('hubspot.api.company-search');

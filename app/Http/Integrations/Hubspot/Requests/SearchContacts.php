@@ -20,6 +20,7 @@ class SearchContacts extends Request implements HasBody
         protected string $field,
         protected string $operator,
         protected mixed $filterValue,
+        protected array $properties = [],
     ) {}
 
     /**
@@ -37,18 +38,32 @@ class SearchContacts extends Request implements HasBody
             $valueKey = 'values';
         }
 
-        $body = [
-            'limit' => 200,
-            'properties' => [
+        $properties = array_merge(
+            [
                 'lastname',
                 'firstname',
-                'star_sign',
                 'date_of_birth',
-                'birthdaytext',
 
                 'hubspot_owner_id',
                 'associatedcompanyid',
             ],
+            $this->properties,
+        );
+
+
+        $body = [
+            'limit' => 200,
+            'properties' => $properties,
+            // 'filterGroups' => [
+            //     [
+            //         'filters' => [
+            //             [
+            //                 'operator' => 'HAS_PROPERTY',
+            //                 'propertyName' => 'date_of_birth',
+            //             ]
+            //         ]
+            //     ]
+            // ]
             'filterGroups' => [
                 [
                     'filters' => [

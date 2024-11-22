@@ -117,7 +117,16 @@ export interface App {
 
     type: AppType;
     name: string;
-    configuration: object;
+    configuration: object | BirthdayReminderConfiguration;
+}
+
+export interface BirthdayReminderConfiguration {
+    enabled: boolean;
+    property: string;
+    receiver: string;
+    receiver_emails: string;
+    send_reminder_before: number;
+    properties: string[];
 }
 
 export interface ContactCluster {

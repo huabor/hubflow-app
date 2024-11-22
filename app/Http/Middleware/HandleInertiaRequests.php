@@ -52,8 +52,8 @@ class HandleInertiaRequests extends Middleware
             'maximum_locations' => 100,
         ];
 
+        $planDetails['enabled_apps'][] = AppType::BIRTHDAY_REMINDER;
         if ($subscription !== null) {
-            $planDetails['enabled_apps'][] = AppType::BIRTHDAY_REMINDER;
         }
 
         return [

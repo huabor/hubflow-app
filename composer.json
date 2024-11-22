@@ -20,6 +20,8 @@
         "saloonphp/rate-limit-plugin": "^2.0",
         "saloonphp/saloon": "^3.0",
         "socialiteproviders/hubspot": "dev-master",
+        "spatie/laravel-data": "^4.11",
+        "spatie/laravel-validation-rules": "^3.4",
         "tightenco/ziggy": "^2.0"
     },
     "require-dev": {

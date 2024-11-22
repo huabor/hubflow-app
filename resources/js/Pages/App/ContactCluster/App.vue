@@ -157,9 +157,7 @@ const closeClusterModal = () => {
                                     <div
                                         class="flex items-center justify-between"
                                     >
-                                        <span
-                                            class="mt-1 text-sm font-normal"
-                                        >
+                                        <span class="mt-1 text-sm font-normal">
                                             <template
                                                 v-if="
                                                     cluster.refreshed_at !==

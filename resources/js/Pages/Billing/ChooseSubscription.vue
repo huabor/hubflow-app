@@ -11,7 +11,6 @@ const plans = usePage().props.system.plans;
 
 const currentSubscription = computed(() => {
     const subscription = usePage().props.auth.subscription;
-    console.log(subscription);
     if (subscription) return plans[subscription.plan];
 
     return subscription;

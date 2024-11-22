@@ -16,7 +16,6 @@ const tokensRef: Ref<HubspotToken[]> = ref([]);
 const openedWindow: Ref<Window | null> = ref(null);
 
 onUpdated(() => {
-    console.log(props);
     tokensRef.value = props.tokens;
 });
 
