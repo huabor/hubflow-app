@@ -57,7 +57,7 @@ const openConnectModal = () => {
         route('oauth.hubspot.redirect', {
             state: 'popup',
         }),
-        'Hubflow Apps - Connect',
+        'HubFlow Apps - Connect',
         'resizeable,scrollbars,height=800,width=768',
     );
 };

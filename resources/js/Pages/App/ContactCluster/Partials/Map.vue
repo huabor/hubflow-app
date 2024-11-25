@@ -76,7 +76,7 @@ onMounted(async () => {
         zoom: 10,
     });
     map.value.attributionControl.addAttribution(
-        `Powered by <a href="${appLink}" target="_blank">Hubflow Apps</a>`,
+        `Powered by <a href="${appLink}" target="_blank">HubFlow Apps</a>`,
     );
 
     L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {}).addTo(map.value);

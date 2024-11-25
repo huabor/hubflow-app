@@ -46,7 +46,7 @@ import { Link } from '@inertiajs/vue3';
             <div class="relative z-10 mx-auto max-w-[845px]">
                 <div class="mt-16">
                     <img
-                        src="https://placehold.co/845x600/EEE/31343C"
+                        src="/assets/contact-cluster.png"
                         alt="hero"
                         class="mx-auto max-w-full rounded-t-xl rounded-tr-xl"
                     />

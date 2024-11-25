@@ -29,7 +29,7 @@ class BirthdayReminder extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Hubflow Apps - Birthday Reminder',
+            subject: 'HubFlow Apps - Birthday Reminder',
         );
     }
 
